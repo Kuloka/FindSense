@@ -185,9 +185,9 @@
                 <label>
                   Режим Discord
                   <select id="discordMode">
-                    <option value="random" selected>Случайные неймы</option>
+                    <option value="random" selected>Случайные ники</option>
                     <option value="english">Английские слова</option>
-                    <option value="names">Бренды / имена</option>
+                    <option value="names">Бренды / ники</option>
                   </select>
                 </label>
 
@@ -224,9 +224,9 @@
                   </select>
                 </label>
 
-                <label>
+                <label title="Медленная скорость делает паузы между запросами, чтобы Discord не ограничил и не приостановил поиск.">
                   Скорость
-                  <select id="discordSpeed">
+                  <select id="discordSpeed" title="Медленная скорость делает паузы между запросами, чтобы Discord не ограничил и не приостановил поиск.">
                     <option value="slow" selected>Медленная</option>
                     <option value="fast">Быстрая</option>
                   </select>
@@ -286,9 +286,9 @@
                 <label>
                   Режим TikTok
                   <select id="tiktokMode">
-                    <option value="random" selected>Случайные неймы</option>
+                    <option value="random" selected>Случайные ники</option>
                     <option value="english">Английские слова</option>
-                    <option value="names">Бренды / имена</option>
+                    <option value="names">Бренды / ники</option>
                   </select>
                 </label>
 
@@ -425,6 +425,14 @@
                   <span>Ватермарка</span>
                   <input id="settingWatermark" type="checkbox" checked />
                 </label>
+
+                <label class="setting-row">
+                  <span>Language / Язык</span>
+                  <select id="settingLanguage">
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                  </select>
+                </label>
               </div>
             </section>
           </section>
@@ -443,6 +451,6 @@
 
     <div class="watermark" id="watermark">findsense | ready</div>
     <div class="toast" id="toast">Готово</div>
-    <script src="/app.js?v=findsense-permanent-free-lists"></script>
+    <script src="/app.js?v=findsense-language-settings"></script>
   </body>
 </html>

@@ -42,6 +42,7 @@ const settingExternalCheck = document.querySelector("#settingExternalCheck");
 const settingCompactMode = document.querySelector("#settingCompactMode");
 const settingLogoMotion = document.querySelector("#settingLogoMotion");
 const settingWatermark = document.querySelector("#settingWatermark");
+const settingLanguage = document.querySelector("#settingLanguage");
 const brandMark = document.querySelector(".brand-mark");
 const pyramidScene = document.querySelector(".pyramid-scene");
 
@@ -771,6 +772,373 @@ const viewLabels = {
   about: "About Findsense",
 };
 
+const translations = {
+  ru: {
+    appSubtitle: "auto username finder",
+    copyFree: "Скопировать свободные",
+    navSettings: "Настройки",
+    viewLabels: {
+      search: "Telegram username scanner",
+      discord: "Поиск Discord username",
+      tiktok: "Поиск TikTok username",
+      free: "Свободные username",
+      export: "Экспорт результатов",
+      settings: "Настройки FINDSENSE",
+      about: "О FindSense",
+    },
+    settings: {
+      title: "Настройки",
+      autoStart: "Авто поиск при старте",
+      externalCheck: "Внешняя Telegram проверка",
+      compactMode: "Компактный режим",
+      logoMotion: "Анимация логотипа",
+      watermark: "Ватермарка",
+      language: "Язык",
+    },
+    labels: {
+      mode: "Режим",
+      preference: "Предпочтение",
+      length: "Длина",
+      count: "Количество",
+      sameChars: "Одинаковые",
+      chars: "Символы",
+      speed: "Скорость",
+      speedHint: "Медленная скорость делает паузы между запросами, чтобы Discord не ограничил и не приостановил поиск.",
+      quickCheck: "Быстрая проверка",
+      discordMode: "Режим Discord",
+      discordQuickCheck: "Быстрая проверка Discord",
+      tiktokMode: "Режим TikTok",
+      tiktokQuickCheck: "Быстрая проверка TikTok",
+    },
+    info: {
+      candidateMode: "Выбирает способ генерации Telegram ников: случайные варианты, английские слова или брендовые/известные слова.",
+      prefix: "Добавляет желаемое начало ника. Например, ai даст варианты, которые начинаются с ai.",
+      length: "Длина генерируемого ника. Для Telegram доступны короткие варианты от 5 символов.",
+      count: "Сколько кандидатов создать в одной пачке проверки.",
+      sameChars: "Ограничивает повторы символов. Полезно для поиска коротких красивых комбинаций.",
+      charset: "Набор символов для генерации. Читаемые дают более аккуратные ники, цифры расширяют поиск.",
+      beautifulOnly: "Оставляет только более читаемые и визуально приятные варианты.",
+      externalCheck: "Добавляет внешнюю Telegram проверку. Может быть быстрее, но зависит от доступности внешних сервисов.",
+      discordMode: "Выбирает способ генерации Discord ников: случайные, английские слова или брендовые варианты.",
+      discordPrefix: "Желаемое начало Discord ника.",
+      discordLength: "Длина Discord ника. Discord разрешает более короткие ники, чем Telegram.",
+      discordCount: "Сколько Discord кандидатов создать в одной пачке.",
+      discordCharset: "Набор символов для Discord. Discord также допускает точку и нижнее подчеркивание.",
+      discordSpeed: "Медленная скорость делает паузы между запросами, чтобы Discord не ограничил и не приостановил поиск. Быстрая проверяет резче, но чаще ловит лимиты.",
+      discordBeautifulOnly: "Оставляет более читаемые Discord ники.",
+      tiktokMode: "Выбирает способ генерации TikTok ников: случайные, английские слова или брендовые варианты.",
+      tiktokPrefix: "Желаемое начало TikTok ника.",
+      tiktokLength: "Длина TikTok ника для генерации.",
+      tiktokCount: "Сколько TikTok кандидатов создать в одной пачке.",
+      tiktokCharset: "Набор символов для TikTok. TikTok допускает буквы, цифры, точку и нижнее подчеркивание, но не в любом месте.",
+      tiktokBeautifulOnly: "Оставляет более читаемые TikTok ники.",
+      settingAutoStart: "Автоматически запускает Telegram поиск при старте приложения.",
+      settingExternalCheck: "Включает внешнюю Telegram проверку по умолчанию.",
+      settingCompactMode: "Уменьшает отступы и делает интерфейс плотнее.",
+      settingLogoMotion: "Включает движение логотипа при наведении.",
+      settingWatermark: "Показывает или скрывает маленький статусный водяной знак внизу.",
+      settingLanguage: "Переключает язык интерфейса между русским и английским.",
+    },
+    options: {
+      randomUsernames: "Случайные ники",
+      randomNames: "Случайные ники",
+      englishWords: "Английские слова",
+      brandsCelebs: "Бренды / знаменитости",
+      brandsNames: "Бренды / ники",
+      anyCount: "Любое число",
+      allDifferent: "Все разные",
+      exactly2: "Ровно 2",
+      exactly3: "Ровно 3",
+      exactly4: "Ровно 4",
+      twoSymbols: "2 символа (AAABB)",
+      threePlusTwo: "3 + 2 (AAABB)",
+      readable: "Читаемые",
+      allLetters: "Все буквы",
+      withDigits: "С цифрами",
+      discordChars: "Discord: буквы, цифры, . _",
+      tiktokChars: "TikTok: буквы, цифры, . _",
+      slow: "Медленная",
+      fast: "Быстрая",
+      chars2: "2 символа",
+      chars3: "3 символа",
+      chars4: "4 символа",
+      chars5: "5 символов",
+      chars6: "6 символов",
+      chars7: "7 символов",
+      chars8: "8 символов",
+    },
+    toggles: {
+      beautifulOnly: "Только красивые",
+      externalCheck: "Внешняя проверка",
+    },
+    buttons: {
+      start: "Начать",
+      checkCurrent: "Проверить текущие",
+      autoSearch: "Авто поиск",
+      stopAuto: "Стоп авто",
+      check: "Проверить",
+      checkFindsense: "Проверить FINDSENSE",
+      clear: "Очистить",
+      openTelegram: "Открыть t.me",
+      openTikTok: "Открыть TikTok",
+      copy: "Скопировать",
+      copyList: "Скопировать список",
+      refresh: "Обновить",
+      removeFree: "Удалить из свободных",
+      copyUsername: "Скопировать ник",
+    },
+    headings: {
+      free: "Свободные",
+      freeCandidates: "Свободные / кандидаты",
+      candidates: "Кандидаты",
+      discordCandidates: "Discord кандидаты",
+      tiktokCandidates: "TikTok кандидаты",
+      freeUsernames: "Свободные юзернеймы",
+      export: "Экспорт",
+    },
+    stats: {
+      total: "всего",
+      free: "свободно",
+      taken: "занято",
+    },
+    status: {
+      pending: "в очереди",
+      free: "свободен",
+      taken: "занят",
+      invalid: "некорректен",
+      reserved: "резерв",
+      unknown: "неясно",
+      maybe: "не подтверждено",
+      rate_limit: "лимит",
+      login_required: "нужен вход",
+      error: "сбой",
+    },
+    empty: {
+      candidates: "Сгенерируй кандидатов или проверь ник вручную.",
+      discordCandidates: "Сгенерируй Discord кандидатов или проверь ник вручную.",
+      tiktokCandidates: "Сгенерируй TikTok кандидатов или проверь ник вручную.",
+      free: "Пока нет найденных свободных юзернеймов.",
+      autoFree: "Свободные имена появятся здесь во время авто-поиска.",
+      serviceFree: "Свободные имена появятся здесь после проверки.",
+      discordFree: "Свободные Discord username появятся здесь после проверки.",
+      tiktokFree: "TikTok username с максимальным шансом свободы появятся здесь после проверки.",
+    },
+    states: {
+      ready: "Готов к поиску",
+      appearAfterCheck: "Появятся после проверки",
+      autoStopped: "Авто режим остановлен",
+      autoStopping: "Останавливаем авто режим...",
+      autoRunning: "Авто режим работает, найдено свободных: {count}",
+      autoStoppedWithFound: "Авто остановлен, найдено свободных: {count}",
+      found: "{count} найдено",
+      freeCount: "{count} свободно",
+      generated: "Список сгенерирован: {count} новых",
+      noMoreTelegram: "Новых ников для этих настроек не осталось",
+      noMoreDiscord: "Новых Discord ников не осталось",
+      noMoreTikTok: "Новых TikTok ников не осталось",
+      checkingTelegram: "Проверяем @{username}",
+      checkingDiscord: "Проверяем {username}",
+      checkingTikTok: "Проверяем @{username}",
+      done: "Готово.",
+      addedManual: "Добавлен вручную.",
+      notChecked: "Еще не проверяли.",
+    },
+    toast: {
+      copied: "Скопировано",
+      noFree: "Свободных имен пока нет",
+      emptyList: "Список пуст",
+      freeCleared: "Список свободных очищен",
+      removed: "@{username} удален",
+      enterName: "Введи ник",
+      enterDiscord: "Введи Discord ник",
+      enterTikTok: "Введи TikTok ник",
+      ready: "Готово",
+    },
+  },
+  en: {
+    appSubtitle: "auto username finder",
+    copyFree: "Copy free usernames",
+    navSettings: "Settings",
+    viewLabels: {
+      search: "Telegram username scanner",
+      discord: "Discord username search",
+      tiktok: "TikTok username search",
+      free: "Available usernames",
+      export: "Copy results",
+      settings: "FINDSENSE settings",
+      about: "About FindSense",
+    },
+    settings: {
+      title: "Settings",
+      autoStart: "Auto search on startup",
+      externalCheck: "External Telegram check",
+      compactMode: "Compact mode",
+      logoMotion: "Logo animation",
+      watermark: "Watermark",
+      language: "Language",
+    },
+    labels: {
+      mode: "Mode",
+      preference: "Preference",
+      length: "Length",
+      count: "Count",
+      sameChars: "Repeated chars",
+      chars: "Characters",
+      speed: "Speed",
+      speedHint: "Slow speed adds pauses between requests so Discord is less likely to limit or pause the search.",
+      quickCheck: "Quick check",
+      discordMode: "Discord mode",
+      discordQuickCheck: "Quick Discord check",
+      tiktokMode: "TikTok mode",
+      tiktokQuickCheck: "Quick TikTok check",
+    },
+    info: {
+      candidateMode: "Chooses how Telegram usernames are generated: random variants, English words, or brand-style words.",
+      prefix: "Adds a desired username start. For example, ai generates variants starting with ai.",
+      length: "Generated username length. Telegram short names start from 5 characters.",
+      count: "How many candidates to create in one batch.",
+      sameChars: "Limits repeated characters. Useful for short clean combinations.",
+      charset: "Character set for generation. Readable is cleaner; digits expand the search.",
+      beautifulOnly: "Keeps only more readable and visually clean variants.",
+      externalCheck: "Adds an external Telegram check. It can be faster, but depends on external services.",
+      discordMode: "Chooses how Discord usernames are generated: random, English words, or brand-style variants.",
+      discordPrefix: "Desired start for a Discord username.",
+      discordLength: "Discord username length. Discord allows shorter usernames than Telegram.",
+      discordCount: "How many Discord candidates to create in one batch.",
+      discordCharset: "Character set for Discord. Discord also allows dot and underscore.",
+      discordSpeed: "Slow speed adds pauses between requests so Discord is less likely to limit or pause the search. Fast mode checks harder but hits limits more often.",
+      discordBeautifulOnly: "Keeps more readable Discord usernames.",
+      tiktokMode: "Chooses how TikTok usernames are generated: random, English words, or brand-style variants.",
+      tiktokPrefix: "Desired start for a TikTok username.",
+      tiktokLength: "Generated TikTok username length.",
+      tiktokCount: "How many TikTok candidates to create in one batch.",
+      tiktokCharset: "Character set for TikTok. TikTok allows letters, digits, dot, and underscore, but not everywhere.",
+      tiktokBeautifulOnly: "Keeps more readable TikTok usernames.",
+      settingAutoStart: "Starts Telegram search automatically when the app opens.",
+      settingExternalCheck: "Enables external Telegram checking by default.",
+      settingCompactMode: "Reduces spacing and makes the interface denser.",
+      settingLogoMotion: "Enables logo motion on hover.",
+      settingWatermark: "Shows or hides the small status watermark at the bottom.",
+      settingLanguage: "Switches the interface between Russian and English.",
+    },
+    options: {
+      randomUsernames: "Random usernames",
+      randomNames: "Random names",
+      englishWords: "English words",
+      brandsCelebs: "Brands / celebrities",
+      brandsNames: "Brands / names",
+      anyCount: "Any count",
+      allDifferent: "All different",
+      exactly2: "Exactly 2",
+      exactly3: "Exactly 3",
+      exactly4: "Exactly 4",
+      twoSymbols: "2 symbols (AAABB)",
+      threePlusTwo: "3 + 2 (AAABB)",
+      readable: "Readable",
+      allLetters: "All letters",
+      withDigits: "With digits",
+      discordChars: "Discord: letters, digits, . _",
+      tiktokChars: "TikTok: letters, digits, . _",
+      slow: "Slow",
+      fast: "Fast",
+      chars2: "2 characters",
+      chars3: "3 characters",
+      chars4: "4 characters",
+      chars5: "5 characters",
+      chars6: "6 characters",
+      chars7: "7 characters",
+      chars8: "8 characters",
+    },
+    toggles: {
+      beautifulOnly: "Beautiful only",
+      externalCheck: "External check",
+    },
+    buttons: {
+      start: "Start",
+      checkCurrent: "Check current",
+      autoSearch: "Auto search",
+      stopAuto: "Stop auto",
+      check: "Check",
+      checkFindsense: "Check FINDSENSE",
+      clear: "Clear",
+      openTelegram: "Open t.me",
+      openTikTok: "Open TikTok",
+      copy: "Copy",
+      copyList: "Copy list",
+      refresh: "Refresh",
+      removeFree: "Remove from free",
+      copyUsername: "Copy username",
+    },
+    headings: {
+      free: "Free",
+      freeCandidates: "Free / candidates",
+      candidates: "Candidates",
+      discordCandidates: "Discord candidates",
+      tiktokCandidates: "TikTok candidates",
+      freeUsernames: "Available usernames",
+      export: "Export",
+    },
+    stats: {
+      total: "total",
+      free: "free",
+      taken: "taken",
+    },
+    status: {
+      pending: "queued",
+      free: "free",
+      taken: "taken",
+      invalid: "invalid",
+      reserved: "reserved",
+      unknown: "unknown",
+      maybe: "unconfirmed",
+      rate_limit: "rate limit",
+      login_required: "login required",
+      error: "error",
+    },
+    empty: {
+      candidates: "Generate candidates or check a username manually.",
+      discordCandidates: "Generate Discord candidates or check a username manually.",
+      tiktokCandidates: "Generate TikTok candidates or check a username manually.",
+      free: "No available usernames found yet.",
+      autoFree: "Available usernames will appear here during auto search.",
+      serviceFree: "Available usernames will appear here after checks.",
+      discordFree: "Available Discord usernames will appear here after checks.",
+      tiktokFree: "High-confidence TikTok candidates will appear here after checks.",
+    },
+    states: {
+      ready: "Ready to search",
+      appearAfterCheck: "Will appear after checks",
+      autoStopped: "Auto mode stopped",
+      autoStopping: "Stopping auto mode...",
+      autoRunning: "Auto mode running, free found: {count}",
+      autoStoppedWithFound: "Auto stopped, free found: {count}",
+      found: "{count} found",
+      freeCount: "{count} free",
+      generated: "List generated: {count} new",
+      noMoreTelegram: "No more Telegram names for these settings",
+      noMoreDiscord: "No more Discord names",
+      noMoreTikTok: "No more TikTok names",
+      checkingTelegram: "Checking @{username}",
+      checkingDiscord: "Checking {username}",
+      checkingTikTok: "Checking @{username}",
+      done: "Done.",
+      addedManual: "Added manually.",
+      notChecked: "Not checked yet.",
+    },
+    toast: {
+      copied: "Copied",
+      noFree: "No free usernames yet",
+      emptyList: "List is empty",
+      freeCleared: "Free list cleared",
+      removed: "@{username} removed",
+      enterName: "Enter a username",
+      enterDiscord: "Enter a Discord username",
+      enterTikTok: "Enter a TikTok username",
+      ready: "Ready",
+    },
+  },
+};
+
 const SETTINGS_KEY = "findsense.settings.v1";
 const AUTO_FREE_STORAGE_KEY = "findsense.autoFree.v1";
 const settings = loadSettings();
@@ -783,6 +1151,7 @@ function loadSettings() {
       compactMode: false,
       logoMotion: true,
       watermark: true,
+      language: "ru",
       ...JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"),
     };
   } catch (error) {
@@ -792,12 +1161,314 @@ function loadSettings() {
       compactMode: false,
       logoMotion: true,
       watermark: true,
+      language: "ru",
     };
   }
 }
 
 function saveSettings() {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function getLanguage() {
+  return translations[settings.language] ? settings.language : "ru";
+}
+
+function tr(path, params = {}) {
+  const keys = path.split(".");
+  let value = translations[getLanguage()];
+  for (const key of keys) value = value?.[key];
+  if (typeof value !== "string") {
+    value = translations.ru;
+    for (const key of keys) value = value?.[key];
+  }
+  return String(value || path).replace(/\{(\w+)\}/g, (_, key) => params[key] ?? "");
+}
+
+function setText(selector, value) {
+  const element = document.querySelector(selector);
+  if (element) element.textContent = value;
+}
+
+function setLabel(id, value) {
+  const label = document.querySelector(`#${id}`)?.closest("label");
+  if (!label) return;
+  const textNode = [...label.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  if (textNode) {
+    textNode.textContent = `\n                  ${value}\n                  `;
+    return;
+  }
+  const span = label.querySelector("span");
+  if (span) span.textContent = value;
+}
+
+function setLabelTitle(id, value) {
+  const label = document.querySelector(`#${id}`)?.closest("label");
+  if (label) label.title = value;
+  const input = document.querySelector(`#${id}`);
+  if (input) input.title = value;
+}
+
+const infoControlIds = [
+  "candidateMode",
+  "prefix",
+  "length",
+  "count",
+  "sameChars",
+  "charset",
+  "beautifulOnly",
+  "externalCheck",
+  "discordMode",
+  "discordPrefix",
+  "discordLength",
+  "discordCount",
+  "discordCharset",
+  "discordSpeed",
+  "discordBeautifulOnly",
+  "tiktokMode",
+  "tiktokPrefix",
+  "tiktokLength",
+  "tiktokCount",
+  "tiktokCharset",
+  "tiktokBeautifulOnly",
+];
+
+let activeInfoControlId = "";
+
+function getInfoTitle(controlId) {
+  const label = document.querySelector(`#${controlId}`)?.closest("label");
+  if (!label) return "Info";
+
+  if (label.classList.contains("toggle-row") || label.classList.contains("setting-row")) {
+    return label.querySelector("span")?.textContent.trim() || "Info";
+  }
+
+  const textNode = [...label.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  return textNode?.textContent.trim().replace(/\s+/g, " ") || "Info";
+}
+
+function ensureInfoDialog() {
+  let dialog = document.querySelector("#infoDialog");
+  if (dialog) return dialog;
+
+  dialog = document.createElement("div");
+  dialog.id = "infoDialog";
+  dialog.className = "info-dialog";
+  dialog.innerHTML = `
+    <div class="info-dialog-panel" role="dialog" aria-modal="true" aria-labelledby="infoDialogTitle">
+      <button class="info-dialog-close" type="button" aria-label="Close">×</button>
+      <h3 id="infoDialogTitle"></h3>
+      <p id="infoDialogText"></p>
+    </div>
+  `;
+  document.body.appendChild(dialog);
+
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog || event.target.classList.contains("info-dialog-close")) {
+      closeInfoDialog();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeInfoDialog();
+  });
+
+  return dialog;
+}
+
+function openInfoDialog(controlId) {
+  activeInfoControlId = controlId;
+  const dialog = ensureInfoDialog();
+  dialog.querySelector("#infoDialogTitle").textContent = getInfoTitle(controlId);
+  dialog.querySelector("#infoDialogText").textContent = tr(`info.${controlId}`);
+  dialog.classList.add("show");
+}
+
+function closeInfoDialog() {
+  const dialog = document.querySelector("#infoDialog");
+  if (dialog) dialog.classList.remove("show");
+}
+
+function setupInfoButtons() {
+  infoControlIds.forEach((controlId) => {
+    const control = document.querySelector(`#${controlId}`);
+    const label = control?.closest("label");
+    if (!label || label.querySelector(`.field-info-button[data-info-for="${controlId}"]`)) return;
+
+    label.classList.add("info-host");
+    const button = document.createElement("button");
+    button.className = "field-info-button";
+    button.type = "button";
+    button.dataset.infoFor = controlId;
+    button.textContent = "i";
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openInfoDialog(controlId);
+    });
+    label.appendChild(button);
+  });
+}
+
+function refreshInfoButtons() {
+  document.querySelectorAll(".field-info-button").forEach((button) => {
+    const controlId = button.dataset.infoFor;
+    button.title = tr(`info.${controlId}`);
+    button.setAttribute("aria-label", tr(`info.${controlId}`));
+  });
+  if (activeInfoControlId && document.querySelector("#infoDialog.show")) {
+    openInfoDialog(activeInfoControlId);
+  }
+}
+
+function setOptionText(id, values) {
+  const select = document.querySelector(`#${id}`);
+  if (!select) return;
+  Object.entries(values).forEach(([value, text]) => {
+    const option = [...select.options].find((item) => item.value === value);
+    if (option) option.textContent = text;
+  });
+}
+
+function setCounterLabel(id, label) {
+  const counter = document.querySelector(`#${id}`);
+  if (!counter?.parentElement) return;
+  counter.parentElement.lastChild.textContent = ` ${label}`;
+}
+
+function applyLanguage() {
+  document.documentElement.lang = getLanguage();
+
+  setText(".brand span", tr("appSubtitle"));
+  setText("#copyFree", tr("copyFree"));
+  setText('[data-view="settings"] span', tr("navSettings"));
+  setText(".settings-head h2", tr("settings.title"));
+  setText(".settings-grid #settingAutoStart + span", tr("settings.autoStart"));
+  setText(".panel-title", tr("headings.export"));
+
+  const settingRows = document.querySelectorAll(".setting-row span");
+  if (settingRows[0]) settingRows[0].textContent = tr("settings.autoStart");
+  if (settingRows[1]) settingRows[1].textContent = tr("settings.externalCheck");
+  if (settingRows[2]) settingRows[2].textContent = tr("settings.compactMode");
+  if (settingRows[3]) settingRows[3].textContent = tr("settings.logoMotion");
+  if (settingRows[4]) settingRows[4].textContent = tr("settings.watermark");
+  if (settingRows[5]) settingRows[5].textContent = tr("settings.language");
+
+  setLabel("candidateMode", tr("labels.mode"));
+  setLabel("prefix", tr("labels.preference"));
+  setLabel("length", tr("labels.length"));
+  setLabel("count", tr("labels.count"));
+  setLabel("sameChars", tr("labels.sameChars"));
+  setLabel("charset", tr("labels.chars"));
+  setLabel("manualUsername", tr("labels.quickCheck"));
+  setLabel("discordMode", tr("labels.discordMode"));
+  setLabel("discordPrefix", tr("labels.preference"));
+  setLabel("discordLength", tr("labels.length"));
+  setLabel("discordCount", tr("labels.count"));
+  setLabel("discordCharset", tr("labels.chars"));
+  setLabel("discordSpeed", tr("labels.speed"));
+  setLabelTitle("discordSpeed", tr("labels.speedHint"));
+  setLabel("discordManualUsername", tr("labels.discordQuickCheck"));
+  setLabel("tiktokMode", tr("labels.tiktokMode"));
+  setLabel("tiktokPrefix", tr("labels.preference"));
+  setLabel("tiktokLength", tr("labels.length"));
+  setLabel("tiktokCount", tr("labels.count"));
+  setLabel("tiktokCharset", tr("labels.chars"));
+  setLabel("tiktokManualUsername", tr("labels.tiktokQuickCheck"));
+
+  setText('label[for="unused"]', "");
+  document.querySelectorAll(".toggle-row span").forEach((span, index) => {
+    const values = [
+      tr("toggles.beautifulOnly"),
+      tr("toggles.externalCheck"),
+      tr("toggles.beautifulOnly"),
+      tr("toggles.beautifulOnly"),
+    ];
+    if (values[index]) span.textContent = values[index];
+  });
+
+  setOptionText("candidateMode", {
+    random: tr("options.randomUsernames"),
+    english: tr("options.englishWords"),
+    names: tr("options.brandsCelebs"),
+  });
+  setOptionText("discordMode", {
+    random: tr("options.randomNames"),
+    english: tr("options.englishWords"),
+    names: tr("options.brandsNames"),
+  });
+  setOptionText("tiktokMode", {
+    random: tr("options.randomNames"),
+    english: tr("options.englishWords"),
+    names: tr("options.brandsNames"),
+  });
+  setOptionText("sameChars", {
+    0: tr("options.anyCount"),
+    1: tr("options.allDifferent"),
+    2: tr("options.exactly2"),
+    3: tr("options.exactly3"),
+    4: tr("options.exactly4"),
+    "two-symbols": tr("options.twoSymbols"),
+    "3+2": tr("options.threePlusTwo"),
+  });
+  ["charset", "discordCharset", "tiktokCharset"].forEach((id) => {
+    setOptionText(id, {
+      clean: tr("options.readable"),
+      compact: tr("options.allLetters"),
+      numbers: tr("options.withDigits"),
+      discord: tr("options.discordChars"),
+      social: tr("options.tiktokChars"),
+    });
+  });
+  ["length", "discordLength", "tiktokLength"].forEach((id) => {
+    setOptionText(id, {
+      2: tr("options.chars2"),
+      3: tr("options.chars3"),
+      4: tr("options.chars4"),
+      5: tr("options.chars5"),
+      6: tr("options.chars6"),
+      7: tr("options.chars7"),
+      8: tr("options.chars8"),
+    });
+  });
+  setOptionText("discordSpeed", {
+    slow: tr("options.slow"),
+    fast: tr("options.fast"),
+  });
+
+  document.querySelectorAll(".actions .primary-button[type='submit']").forEach((button) => {
+    button.textContent = tr("buttons.start");
+  });
+  setText("#checkAll", tr("buttons.checkCurrent"));
+  setText("#discordCheckAll", tr("buttons.checkCurrent"));
+  setText("#tiktokCheckAll", tr("buttons.checkCurrent"));
+  setText("#checkManual", tr("buttons.check"));
+  setText("#discordCheckManual", tr("buttons.check"));
+  setText("#tiktokCheckManual", tr("buttons.check"));
+  setText("#checkFragment", tr("buttons.checkFindsense"));
+  setText("#clearAutoFree", tr("buttons.clear"));
+  setText("#copyExport", tr("buttons.copyList"));
+  setText("#refreshExport", tr("buttons.refresh"));
+  setCounterLabel("totalCount", tr("stats.total"));
+  setCounterLabel("freeCount", tr("stats.free"));
+  setCounterLabel("takenCount", tr("stats.taken"));
+  setCounterLabel("discordTotalCount", tr("stats.total"));
+  setCounterLabel("discordFreeCount", tr("stats.free"));
+  setCounterLabel("discordTakenCount", tr("stats.taken"));
+  setCounterLabel("tiktokTotalCount", tr("stats.total"));
+  setCounterLabel("tiktokFreeCount", tr("stats.free"));
+  setCounterLabel("tiktokTakenCount", tr("stats.taken"));
+
+  const headings = document.querySelectorAll(".results-head h2, .auto-head h2");
+  if (headings[0]) headings[0].textContent = tr("headings.free");
+  if (headings[1]) headings[1].textContent = tr("headings.candidates");
+  if (headings[2]) headings[2].textContent = tr("headings.free");
+  if (headings[3]) headings[3].textContent = tr("headings.discordCandidates");
+  if (headings[4]) headings[4].textContent = tr("headings.freeCandidates");
+  if (headings[5]) headings[5].textContent = tr("headings.tiktokCandidates");
+  if (headings[6]) headings[6].textContent = tr("headings.freeUsernames");
+
+  viewSubtitle.textContent = tr(`viewLabels.${state.activeView}`);
+  refreshInfoButtons();
 }
 
 function loadAutoFreeStorage() {
@@ -848,6 +1519,7 @@ function applySettings() {
   if (settingCompactMode) settingCompactMode.checked = Boolean(settings.compactMode);
   if (settingLogoMotion) settingLogoMotion.checked = settings.logoMotion !== false;
   if (settingWatermark) settingWatermark.checked = settings.watermark !== false;
+  if (settingLanguage) settingLanguage.value = getLanguage();
 
   const externalCheck = document.querySelector("#externalCheck");
   if (externalCheck) externalCheck.checked = Boolean(settings.externalCheck);
@@ -855,6 +1527,7 @@ function applySettings() {
   document.body.classList.toggle("compact-mode", Boolean(settings.compactMode));
   document.body.classList.toggle("no-logo-motion", settings.logoMotion === false);
   document.body.classList.toggle("hide-watermark", settings.watermark === false);
+  applyLanguage();
 }
 
 function bindSetting(input, key, afterChange) {
@@ -1511,13 +2184,13 @@ function generateDiscordCandidates() {
   state.discordItems = candidates.map((username) => ({
     username,
     status: "pending",
-    reason: "Еще не проверяли.",
+    reason: tr("states.notChecked"),
   }));
   discordRunState.textContent = state.discordItems.length
-    ? `Список сгенерирован: ${state.discordItems.length} новых`
-    : "Новых Discord неймов для этих настроек не осталось";
+    ? tr("states.generated", { count: state.discordItems.length })
+    : tr("states.noMoreDiscord");
   setWatermark(`${state.discordItems.length} discord candidates`);
-  if (!state.discordItems.length) showToast("Новых Discord неймов не осталось");
+  if (!state.discordItems.length) showToast(tr("states.noMoreDiscord"));
   renderDiscord();
 }
 
@@ -1584,13 +2257,13 @@ function generateTikTokCandidates() {
   state.tiktokItems = candidates.map((username) => ({
     username,
     status: "pending",
-    reason: "Еще не проверяли.",
+    reason: tr("states.notChecked"),
   }));
   tiktokRunState.textContent = state.tiktokItems.length
-    ? `Список сгенерирован: ${state.tiktokItems.length} новых`
-    : "Новых TikTok неймов для этих настроек не осталось";
+    ? tr("states.generated", { count: state.tiktokItems.length })
+    : tr("states.noMoreTikTok");
   setWatermark(`${state.tiktokItems.length} tiktok candidates`);
-  if (!state.tiktokItems.length) showToast("Новых TikTok неймов не осталось");
+  if (!state.tiktokItems.length) showToast(tr("states.noMoreTikTok"));
   renderTikTok();
 }
 
@@ -1612,31 +2285,20 @@ function generateCandidates() {
   state.items = [...candidates].map((username) => ({
     username,
     status: "pending",
-    reason: "Еще не проверяли.",
+    reason: tr("states.notChecked"),
   }));
   state.checked.clear();
   runState.textContent = state.items.length
-    ? `Список сгенерирован: ${state.items.length} новых`
-    : "Новых ников для этих настроек не осталось";
+    ? tr("states.generated", { count: state.items.length })
+    : tr("states.noMoreTelegram");
   setWatermark(`${state.items.length} candidates`);
-  if (!state.items.length) showToast("Новых ников для этих настроек не осталось");
+  if (!state.items.length) showToast(tr("states.noMoreTelegram"));
   render();
 }
 
 function statusText(status) {
   const normalized = normalizeStatus(status);
-  return {
-    pending: "в очереди",
-    free: "свободен",
-    taken: "занят",
-    invalid: "некорректен",
-    reserved: "резерв",
-    unknown: "неясно",
-    maybe: "не подтверждено",
-    rate_limit: "лимит",
-    login_required: "нужен вход",
-    error: "сбой",
-  }[normalized] || normalized;
+  return tr(`status.${normalized}`) || normalized;
 }
 
 function createCard(item) {
@@ -1657,9 +2319,9 @@ function createCard(item) {
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
     <div class="card-actions">
-      <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">Открыть t.me</a>
+      <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(tr("buttons.openTelegram"))}</a>
       ${fragmentLink}
-      <button class="link-button check-one" type="button">Проверить</button>
+      <button class="link-button check-one" type="button">${escapeHtml(tr("buttons.check"))}</button>
     </div>
   `;
 
@@ -1680,8 +2342,8 @@ function createDiscordCard(item) {
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
     <div class="card-actions">
-      <button class="link-button discord-check-one" type="button">Проверить</button>
-      <button class="link-button discord-copy-one" type="button">Скопировать</button>
+      <button class="link-button discord-check-one" type="button">${escapeHtml(tr("buttons.check"))}</button>
+      <button class="link-button discord-copy-one" type="button">${escapeHtml(tr("buttons.copy"))}</button>
     </div>
   `;
 
@@ -1704,9 +2366,9 @@ function createTikTokCard(item) {
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
     <div class="card-actions">
-      <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">Открыть TikTok</a>
-      <button class="link-button tiktok-check-one" type="button">Проверить</button>
-      <button class="link-button tiktok-copy-one" type="button">Скопировать</button>
+      <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(tr("buttons.openTikTok"))}</a>
+      <button class="link-button tiktok-check-one" type="button">${escapeHtml(tr("buttons.check"))}</button>
+      <button class="link-button tiktok-copy-one" type="button">${escapeHtml(tr("buttons.copy"))}</button>
     </div>
   `;
 
@@ -1735,7 +2397,7 @@ function renderDiscordCards() {
   if (!state.discordItems.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = "Сгенерируй Discord кандидатов или проверь нейм вручную.";
+    empty.textContent = tr("empty.discordCandidates");
     discordResults.appendChild(empty);
     return;
   }
@@ -1749,7 +2411,7 @@ function renderTikTokCards() {
   if (!state.tiktokItems.length) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.textContent = "Сгенерируй TikTok кандидатов или проверь нейм вручную.";
+    empty.textContent = tr("empty.tiktokCandidates");
     tiktokResults.appendChild(empty);
     return;
   }
@@ -1764,20 +2426,20 @@ function createAutoFreeItem(item) {
   row.innerHTML = `
     <div class="auto-free-top service-free-top">
       <a href="${escapeHtml(link)}" target="_blank" rel="noreferrer">@${escapeHtml(item.username)}</a>
-      <button class="auto-copy" type="button" title="Скопировать ник" aria-label="Скопировать ${escapeHtml(item.username)}">⧉</button>
-      <button class="auto-remove" type="button" title="Удалить из свободных" aria-label="Удалить ${escapeHtml(item.username)}">×</button>
+      <button class="auto-copy" type="button" title="${escapeHtml(tr("buttons.copyUsername"))}" aria-label="${escapeHtml(tr("buttons.copyUsername"))} ${escapeHtml(item.username)}">⧉</button>
+      <button class="auto-remove" type="button" title="${escapeHtml(tr("buttons.removeFree"))}" aria-label="${escapeHtml(tr("buttons.removeFree"))} ${escapeHtml(item.username)}">×</button>
     </div>
     <span>${escapeHtml(item.checkedAt || "")}</span>
   `;
   row.querySelector(".auto-copy").addEventListener("click", () => {
-    copyText(item.username, "Ник пуст");
+    copyText(item.username, tr("toast.emptyList"));
   });
   row.querySelector(".auto-remove").addEventListener("click", () => {
     state.autoFree.delete(item.username);
     state.savedAutoFree.delete(item.username);
     saveAutoFreeStorage();
     render();
-    showToast(`@${item.username} удален`);
+    showToast(tr("toast.removed", { username: item.username }));
   });
   return row;
 }
@@ -1789,7 +2451,7 @@ function renderAutoFreeList() {
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "auto-empty";
-    empty.textContent = "Свободные имена появятся здесь во время авто-поиска.";
+    empty.textContent = tr("empty.autoFree");
     autoFreeList.appendChild(empty);
     return;
   }
@@ -1811,7 +2473,7 @@ function createServiceFreeItem(item, options = {}) {
   row.innerHTML = `
     <div class="auto-free-top">
       ${openLink}
-      <button class="auto-copy" type="button" title="Скопировать ник" aria-label="Скопировать ${escapeHtml(item.username)}">⧉</button>
+      <button class="auto-copy" type="button" title="${escapeHtml(tr("buttons.copyUsername"))}" aria-label="${escapeHtml(tr("buttons.copyUsername"))} ${escapeHtml(item.username)}">⧉</button>
     </div>
     <span>${escapeHtml(status)}${item.confidence ? ` · ${escapeHtml(item.confidence)}` : ""}</span>
   `;
@@ -1822,7 +2484,7 @@ function createServiceFreeItem(item, options = {}) {
   }
 
   row.querySelector(".auto-copy").addEventListener("click", () => {
-    copyText(item.username, "Ник пуст");
+    copyText(item.username, tr("toast.emptyList"));
   });
 
   return row;
@@ -1835,14 +2497,14 @@ function renderServiceFreeList(container, stateElement, items, options = {}) {
   if (!items.length) {
     const empty = document.createElement("div");
     empty.className = "auto-empty";
-    empty.textContent = options.emptyText || "Свободные имена появятся здесь после проверки.";
+    empty.textContent = options.emptyText || tr("empty.serviceFree");
     container.appendChild(empty);
-    if (stateElement) stateElement.textContent = "Появятся после проверки";
+    if (stateElement) stateElement.textContent = tr("states.appearAfterCheck");
     return;
   }
 
   items.forEach((item) => container.appendChild(createServiceFreeItem(item, options)));
-  if (stateElement) stateElement.textContent = `${items.length} найдено`;
+  if (stateElement) stateElement.textContent = tr("states.found", { count: items.length });
 }
 
 function rememberFreeItem(username, result = {}) {
@@ -1883,8 +2545,8 @@ function renderExport() {
 function render() {
   pruneAutoFreeList();
   const allFreeItems = getAllFreeItems();
-  renderCards(results, state.items, "Сгенерируй кандидатов или проверь ник вручную.");
-  renderCards(freeResults, allFreeItems, "Пока нет найденных свободных юзернеймов.");
+  renderCards(results, state.items, tr("empty.candidates"));
+  renderCards(freeResults, allFreeItems, tr("empty.free"));
   renderAutoFreeList();
   renderExport();
 
@@ -1894,14 +2556,17 @@ function render() {
   totalCount.textContent = state.items.length;
   freeCount.textContent = free;
   takenCount.textContent = taken;
-  freeState.textContent = allFreeItems.length ? `${allFreeItems.length} свободно` : "Появятся после проверки";
+  freeState.textContent = allFreeItems.length
+    ? tr("states.freeCount", { count: allFreeItems.length })
+    : tr("states.appearAfterCheck");
   autoState.textContent = state.autoRunning
-    ? `Авто режим работает, найдено свободных: ${autoFree}`
+    ? tr("states.autoRunning", { count: autoFree })
     : autoFree
-      ? `Авто остановлен, найдено свободных: ${autoFree}`
-      : "Авто режим остановлен";
-  autoModeButton.textContent = state.autoRunning ? "Стоп авто" : "Авто поиск";
+      ? tr("states.autoStoppedWithFound", { count: autoFree })
+      : tr("states.autoStopped");
+  autoModeButton.textContent = state.autoRunning ? tr("buttons.stopAuto") : tr("buttons.autoSearch");
   autoModeButton.classList.toggle("danger-button", state.autoRunning);
+  applyLanguage();
 }
 
 function renderDiscord() {
@@ -1915,12 +2580,13 @@ function renderDiscord() {
   discordFreeCount.textContent = free;
   discordTakenCount.textContent = taken;
   renderServiceFreeList(discordFreeList, discordFreeState, freeItems, {
-    emptyText: "Свободные Discord username появятся здесь после проверки.",
+    emptyText: tr("empty.discordFree"),
   });
   if (discordAutoModeButton) {
-    discordAutoModeButton.textContent = state.discordAutoRunning ? "Стоп авто" : "Авто поиск";
+    discordAutoModeButton.textContent = state.discordAutoRunning ? tr("buttons.stopAuto") : tr("buttons.autoSearch");
     discordAutoModeButton.classList.toggle("danger-button", state.discordAutoRunning);
   }
+  applyLanguage();
 }
 
 function renderTikTok() {
@@ -1936,12 +2602,13 @@ function renderTikTok() {
   renderServiceFreeList(tiktokFreeList, tiktokFreeState, freeItems, {
     prefix: "@",
     getLink: (username) => `https://www.tiktok.com/@${encodeURIComponent(username)}`,
-    emptyText: "TikTok username с максимальным шансом свободы появятся здесь после проверки.",
+    emptyText: tr("empty.tiktokFree"),
   });
   if (tiktokAutoModeButton) {
-    tiktokAutoModeButton.textContent = state.tiktokAutoRunning ? "Стоп авто" : "Авто поиск";
+    tiktokAutoModeButton.textContent = state.tiktokAutoRunning ? tr("buttons.stopAuto") : tr("buttons.autoSearch");
     tiktokAutoModeButton.classList.toggle("danger-button", state.tiktokAutoRunning);
   }
+  applyLanguage();
 }
 
 function updateDiscordItem(username, patch) {
@@ -2076,8 +2743,8 @@ async function checkOne(username) {
     };
   }
 
-  updateItem(username, { status: "pending", reason: "Проверяем Telegram..." });
-  runState.textContent = `Проверяем @${username}`;
+  updateItem(username, { status: "pending", reason: tr("states.checkingTelegram", { username }) });
+  runState.textContent = tr("states.checkingTelegram", { username });
   setWatermark(`checking @${username}`);
 
   try {
@@ -2096,13 +2763,13 @@ async function checkOne(username) {
       status,
       link: normalizedResult.link,
       fragmentLink: normalizedResult.fragmentLink,
-      reason: normalizedResult.reason || "Готово.",
+      reason: normalizedResult.reason || tr("states.done"),
       confidence: normalizedResult.confidence,
     });
     state.checked.set(username, normalizedResult);
     if (normalizeStatus(status) === "login_required") {
       state.autoRunning = false;
-      showToast("Нужен вход в Telegram API");
+      showToast("Telegram API login required");
     }
     if (isFreeLikeStatus(status) && !isInvalidTelegramResult(normalizedResult)) {
       rememberFreeItem(username, { ...normalizedResult, status });
@@ -2118,7 +2785,7 @@ async function checkOne(username) {
     });
     return { status: "error", error };
   } finally {
-    runState.textContent = "Готов к поиску";
+    runState.textContent = tr("states.ready");
     setWatermark("ready");
   }
 }
@@ -2137,8 +2804,8 @@ async function checkDiscordOne(username) {
     return { status: "invalid" };
   }
 
-  updateDiscordItem(username, { status: "pending", reason: "Проверяем Discord..." });
-  discordRunState.textContent = `Проверяем ${clean}`;
+  updateDiscordItem(username, { status: "pending", reason: tr("states.checkingDiscord", { username: clean }) });
+  discordRunState.textContent = tr("states.checkingDiscord", { username: clean });
   setWatermark(`checking discord ${clean}`);
 
   try {
@@ -2148,7 +2815,7 @@ async function checkDiscordOne(username) {
     updateDiscordItem(username, {
       username: result.username || clean,
       status: result.status || "unknown",
-      reason: result.reason || "Готово.",
+      reason: result.reason || tr("states.done"),
       confidence: result.confidence,
       retryAfterMs: result.retryAfterMs,
       source: result.source,
@@ -2166,7 +2833,7 @@ async function checkDiscordOne(username) {
     });
     return { status: "error", error };
   } finally {
-    discordRunState.textContent = "Готов к поиску";
+    discordRunState.textContent = tr("states.ready");
     setWatermark("ready");
   }
 }
@@ -2185,8 +2852,8 @@ async function checkTikTokOne(username) {
     return { status: "invalid" };
   }
 
-  updateTikTokItem(username, { status: "pending", reason: "Проверяем TikTok..." });
-  tiktokRunState.textContent = `Проверяем @${clean}`;
+  updateTikTokItem(username, { status: "pending", reason: tr("states.checkingTikTok", { username: clean }) });
+  tiktokRunState.textContent = tr("states.checkingTikTok", { username: clean });
   setWatermark(`checking tiktok ${clean}`);
 
   try {
@@ -2197,7 +2864,7 @@ async function checkTikTokOne(username) {
       username: result.username || clean,
       status: result.status || "unknown",
       link: result.link,
-      reason: result.reason || "Готово.",
+      reason: result.reason || tr("states.done"),
       confidence: result.confidence,
       source: result.source,
     });
@@ -2214,7 +2881,7 @@ async function checkTikTokOne(username) {
     });
     return { status: "error", error };
   } finally {
-    tiktokRunState.textContent = "Готов к поиску";
+    tiktokRunState.textContent = tr("states.ready");
     setWatermark("ready");
   }
 }
@@ -2242,7 +2909,7 @@ async function checkAllDiscord() {
 function addDiscordManualCandidate() {
   const username = sanitizeDiscordUsername(discordManualUsername.value);
   if (!username) {
-    showToast("Введи Discord нейм");
+    showToast(tr("toast.enterDiscord"));
     return;
   }
 
@@ -2250,7 +2917,7 @@ function addDiscordManualCandidate() {
     state.discordItems.unshift({
       username,
       status: "pending",
-      reason: "Добавлен вручную.",
+      reason: tr("states.addedManual"),
     });
     renderDiscord();
   }
@@ -2289,7 +2956,7 @@ async function checkTikTokItemsWithLimit(items, limit = 5, shouldContinue = () =
 function addTikTokManualCandidate() {
   const username = sanitizeTikTokUsername(tiktokManualUsername.value);
   if (!username) {
-    showToast("Введи TikTok нейм");
+    showToast(tr("toast.enterTikTok"));
     return;
   }
 
@@ -2297,7 +2964,7 @@ function addTikTokManualCandidate() {
     state.tiktokItems.unshift({
       username,
       status: "pending",
-      reason: "Добавлен вручную.",
+      reason: tr("states.addedManual"),
     });
     renderTikTok();
   }
@@ -2314,8 +2981,8 @@ async function checkAll() {
 
   checkAllButton.disabled = false;
   autoModeButton.disabled = false;
-  runState.textContent = "Проверка завершена";
-  showToast("Проверка завершена");
+  runState.textContent = tr("states.done");
+  showToast(tr("states.done"));
 }
 
 async function startTelegramSearch() {
@@ -2442,8 +3109,8 @@ function toggleTikTokAutoMode() {
 async function runAutoMode() {
   let batch = 0;
   checkAllButton.disabled = true;
-  autoModeButton.textContent = "Стоп авто";
-  showToast("Авто режим запущен");
+  autoModeButton.textContent = tr("buttons.stopAuto");
+  showToast(tr("states.autoRunning", { count: getAutoFreeItems().length }));
 
   while (state.autoRunning) {
     batch += 1;
@@ -2451,7 +3118,7 @@ async function runAutoMode() {
 
     if (!state.items.length) {
       state.autoRunning = false;
-      showToast("Авто: новых кандидатов нет");
+      showToast(tr("states.noMoreTelegram"));
       break;
     }
 
@@ -2465,7 +3132,7 @@ async function runAutoMode() {
   state.autoRunning = false;
   checkAllButton.disabled = false;
   autoModeButton.disabled = false;
-  runState.textContent = "Авто режим остановлен";
+  runState.textContent = tr("states.autoStopped");
   setWatermark("ready");
   render();
 }
@@ -2474,7 +3141,7 @@ function toggleAutoMode() {
   if (state.autoRunning) {
     state.autoRunning = false;
     autoModeButton.disabled = true;
-    autoState.textContent = "Останавливаем авто режим...";
+    autoState.textContent = tr("states.autoStopping");
     return;
   }
 
@@ -2486,7 +3153,7 @@ function toggleAutoMode() {
 function addManualCandidate() {
   const username = normalizeManualUsername(manualUsername.value);
   if (!username) {
-    showToast("Введи ник");
+    showToast(tr("toast.enterName"));
     return;
   }
 
@@ -2494,7 +3161,7 @@ function addManualCandidate() {
     state.items.unshift({
       username,
       status: "pending",
-      reason: "Добавлен вручную.",
+      reason: tr("states.addedManual"),
     });
     render();
   }
@@ -2545,7 +3212,7 @@ async function copyText(text, emptyMessage) {
   }
 
   await navigator.clipboard.writeText(text);
-  showToast("Скопировано");
+  showToast(tr("toast.copied"));
 }
 
 function formatFreeUsernamesForCopy(items) {
@@ -2573,7 +3240,7 @@ function setView(name) {
   document.querySelectorAll(".nav-item").forEach((button) => {
     button.classList.toggle("active", button.dataset.view === name);
   });
-  viewSubtitle.textContent = viewLabels[name];
+  viewSubtitle.textContent = tr(`viewLabels.${name}`);
   render();
   renderDiscord();
   renderTikTok();
@@ -2605,7 +3272,7 @@ clearAutoFreeButton.addEventListener("click", () => {
   state.savedAutoFree.clear();
   saveAutoFreeStorage();
   render();
-  showToast("Список свободных очищен");
+  showToast(tr("toast.freeCleared"));
 });
 checkManualButton.addEventListener("click", addManualCandidate);
 discordCheckManualButton.addEventListener("click", addDiscordManualCandidate);
@@ -2624,13 +3291,13 @@ tiktokManualUsername.addEventListener("keydown", (event) => {
 copyFreeButton.addEventListener("click", () => {
   const freeItems = getAutoFreeItems().length ? getAutoFreeItems() : getFreeItems();
   const freeUsernames = formatFreeUsernamesForCopy(freeItems);
-  copyText(freeUsernames, "Свободных имен пока нет");
+  copyText(freeUsernames, tr("toast.noFree"));
 });
 
-copyExportButton.addEventListener("click", () => copyText(exportText.value, "Список пуст"));
+copyExportButton.addEventListener("click", () => copyText(exportText.value, tr("toast.emptyList")));
 refreshExportButton.addEventListener("click", () => {
   renderExport();
-  showToast("Экспорт обновлен");
+  showToast(tr("buttons.refresh"));
 });
 
 document.querySelectorAll(".nav-item").forEach((button) => {
@@ -2642,6 +3309,17 @@ bindSetting(settingExternalCheck, "externalCheck");
 bindSetting(settingCompactMode, "compactMode");
 bindSetting(settingLogoMotion, "logoMotion");
 bindSetting(settingWatermark, "watermark");
+setupInfoButtons();
+if (settingLanguage) {
+  settingLanguage.addEventListener("change", () => {
+    settings.language = settingLanguage.value;
+    saveSettings();
+    applySettings();
+    render();
+    renderDiscord();
+    renderTikTok();
+  });
+}
 bindPyramidMotion();
 document.querySelector("#externalCheck")?.addEventListener("change", (event) => {
   settings.externalCheck = event.target.checked;
