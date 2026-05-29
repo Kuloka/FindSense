@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
+    <canvas id="liquidDropsCanvas" class="liquid-drops-canvas" aria-hidden="true"></canvas>
+    <div class="ambient-system" aria-hidden="true">
+      <div class="grid-plane"></div>
+      <div class="particle-field particle-field-a"></div>
+      <div class="particle-field particle-field-b"></div>
+      <div class="scanner-sweep"></div>
+      <div class="fog-layer"></div>
+      <div class="light-bloom bloom-cyan"></div>
+      <div class="light-bloom bloom-violet"></div>
+    </div>
     <main class="app-shell">
       <section class="workspace">
         <aside class="sidebar">
@@ -60,6 +70,13 @@
             <div>
               <p class="eyebrow" id="viewSubtitle">Telegram username scanner</p>
               <h1><span>find</span><strong>sense</strong></h1>
+            </div>
+            <div class="topbar-telemetry" aria-label="scanner telemetry">
+              <span class="live-pill"><i></i>LIVE SCAN ACTIVE</span>
+              <span>Telegram: <b>ONLINE</b></span>
+              <span>TikTok: <b>ONLINE</b></span>
+              <span>Discord: <b>ONLINE</b></span>
+              <span>Speed: <b id="scanSpeed">427/s</b></span>
             </div>
             <button class="ghost-button" id="copyFree" type="button">Скопировать свободные</button>
           </header>
@@ -125,7 +142,7 @@
 
                 <label class="toggle-row">
                   <input id="externalCheck" type="checkbox" />
-                  <span>Внешняя проверка</span>
+                  <span>Fragment check</span>
                 </label>
 
                 <div class="actions">
@@ -157,6 +174,18 @@
                   <span><b id="takenCount">0</b> занято</span>
                 </div>
               </section>
+            </section>
+
+            <section class="intelligence-grid">
+              <aside class="live-feed-panel">
+                <div class="panel-kicker">TELEGRAM LIVE USERNAME FEED</div>
+                <div class="live-feed" id="liveFeedTelegram" data-service="TG" aria-live="polite"></div>
+              </aside>
+
+              <aside class="terminal-panel">
+                <div class="panel-kicker">TELEGRAM TERMINAL EVENTS</div>
+                <div class="terminal-log" id="terminalLogTelegram" data-service="TG" aria-live="polite"></div>
+              </aside>
             </section>
 
             <section class="auto-panel">
@@ -261,6 +290,18 @@
               </section>
             </section>
 
+            <section class="intelligence-grid">
+              <aside class="live-feed-panel">
+                <div class="panel-kicker">DISCORD LIVE USERNAME FEED</div>
+                <div class="live-feed" id="liveFeedDiscord" data-service="DC" aria-live="polite"></div>
+              </aside>
+
+              <aside class="terminal-panel">
+                <div class="panel-kicker">DISCORD TERMINAL EVENTS</div>
+                <div class="terminal-log" id="terminalLogDiscord" data-service="DC" aria-live="polite"></div>
+              </aside>
+            </section>
+
             <section class="auto-panel">
               <div class="auto-head">
                 <div>
@@ -351,6 +392,18 @@
                   <span><b id="tiktokTakenCount">0</b> занято</span>
                 </div>
               </section>
+            </section>
+
+            <section class="intelligence-grid">
+              <aside class="live-feed-panel">
+                <div class="panel-kicker">TIKTOK LIVE USERNAME FEED</div>
+                <div class="live-feed" id="liveFeedTikTok" data-service="TT" aria-live="polite"></div>
+              </aside>
+
+              <aside class="terminal-panel">
+                <div class="panel-kicker">TIKTOK TERMINAL EVENTS</div>
+                <div class="terminal-log" id="terminalLogTikTok" data-service="TT" aria-live="polite"></div>
+              </aside>
             </section>
 
             <section class="auto-panel">
@@ -451,6 +504,16 @@
 
     <div class="watermark" id="watermark">findsense | ready</div>
     <div class="toast" id="toast">Готово</div>
+    <script src="/services/intelligence.js?v=cyber-ui"></script>
+    <script src="/ui/live-feed.js?v=cyber-ui"></script>
+    <script src="/ui/terminal.js?v=cyber-ui"></script>
+    <script src="/effects/parallax.js?v=cyber-ui"></script>
+    <script src="/effects/liquid-drops.js?v=minimal-liquid"></script>
+    <script src="/animations/scan-orchestrator.js?v=cyber-ui"></script>
     <script src="/app.js?v=findsense-language-settings"></script>
+    <script>
+      window.FindsenseLiquidDrops && window.FindsenseLiquidDrops.boot();
+      window.FindsenseMotion && window.FindsenseMotion.boot();
+    </script>
   </body>
 </html>

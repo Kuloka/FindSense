@@ -818,7 +818,7 @@ const translations = {
       sameChars: "Ограничивает повторы символов. Полезно для поиска коротких красивых комбинаций.",
       charset: "Набор символов для генерации. Читаемые дают более аккуратные ники, цифры расширяют поиск.",
       beautifulOnly: "Оставляет только более читаемые и визуально приятные варианты.",
-      externalCheck: "Добавляет внешнюю Telegram проверку. Может быть быстрее, но зависит от доступности внешних сервисов.",
+      externalCheck: "Включает проверку username через Fragment marketplace перед обычной t.me проверкой.",
       discordMode: "Выбирает способ генерации Discord ников: случайные, английские слова или брендовые варианты.",
       discordPrefix: "Желаемое начало Discord ника.",
       discordLength: "Длина Discord ника. Discord разрешает более короткие ники, чем Telegram.",
@@ -869,7 +869,7 @@ const translations = {
     },
     toggles: {
       beautifulOnly: "Только красивые",
-      externalCheck: "Внешняя проверка",
+      externalCheck: "Fragment check",
     },
     buttons: {
       start: "Начать",
@@ -1005,7 +1005,7 @@ const translations = {
       sameChars: "Limits repeated characters. Useful for short clean combinations.",
       charset: "Character set for generation. Readable is cleaner; digits expand the search.",
       beautifulOnly: "Keeps only more readable and visually clean variants.",
-      externalCheck: "Adds an external Telegram check. It can be faster, but depends on external services.",
+      externalCheck: "Checks the username against the Fragment marketplace before the regular t.me check.",
       discordMode: "Chooses how Discord usernames are generated: random, English words, or brand-style variants.",
       discordPrefix: "Desired start for a Discord username.",
       discordLength: "Discord username length. Discord allows shorter usernames than Telegram.",
@@ -1056,7 +1056,7 @@ const translations = {
     },
     toggles: {
       beautifulOnly: "Beautiful only",
-      externalCheck: "External check",
+      externalCheck: "Fragment check",
     },
     buttons: {
       start: "Start",
@@ -1532,7 +1532,10 @@ function applySettings() {
   if (settingLanguage) settingLanguage.value = getLanguage();
 
   const externalCheck = document.querySelector("#externalCheck");
-  if (externalCheck) externalCheck.checked = Boolean(settings.externalCheck);
+  if (externalCheck) {
+    externalCheck.checked = Boolean(settings.externalCheck);
+    externalCheck.disabled = false;
+  }
 
   document.body.classList.toggle("compact-mode", Boolean(settings.compactMode));
   document.body.classList.toggle("no-logo-motion", settings.logoMotion === false);
@@ -2344,15 +2347,18 @@ function createCard(item) {
 
   const displayUsername = escapeHtml(item.username);
   const link = item.link || `https://t.me/${encodeURIComponent(item.username)}`;
-  const fragmentLink = item.fragmentLink
-    ? `<a class="link-button" href="${escapeHtml(item.fragmentLink)}" target="_blank" rel="noreferrer">FINDSENSE</a>`
+  const resolvedFragmentLink = item.fragmentLink || (item.source === "fragment" ? item.link : "");
+  const fragmentLink = resolvedFragmentLink
+    ? `<a class="link-button" href="${escapeHtml(resolvedFragmentLink)}" target="_blank" rel="noreferrer">Fragment</a>`
     : "";
+  const scoreGrid = window.FindsenseIntelligence?.renderScoreGrid(item.username, status) || "";
   card.innerHTML = `
     <div class="username-top">
       <span class="username">@${displayUsername}</span>
       <span class="badge ${status}">${statusText(item.status)}</span>
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
+    ${scoreGrid}
     <div class="card-actions">
       <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(tr("buttons.openTelegram"))}</a>
       ${fragmentLink}
@@ -2369,6 +2375,7 @@ function createDiscordCard(item) {
   const status = normalizeStatus(item.status);
   card.className = `username-card status-${status}`;
   card.dataset.username = item.username;
+  const scoreGrid = window.FindsenseIntelligence?.renderScoreGrid(item.username, status) || "";
 
   card.innerHTML = `
     <div class="username-top">
@@ -2376,6 +2383,7 @@ function createDiscordCard(item) {
       <span class="badge ${status}">${statusText(item.status)}</span>
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
+    ${scoreGrid}
     <div class="card-actions">
       <button class="link-button discord-check-one" type="button">${escapeHtml(tr("buttons.check"))}</button>
       <button class="link-button discord-copy-one" type="button">${escapeHtml(tr("buttons.copy"))}</button>
@@ -2393,6 +2401,7 @@ function createTikTokCard(item) {
   card.className = `username-card status-${status}`;
   card.dataset.username = item.username;
   const link = item.link || `https://www.tiktok.com/@${encodeURIComponent(item.username)}`;
+  const scoreGrid = window.FindsenseIntelligence?.renderScoreGrid(item.username, status) || "";
 
   card.innerHTML = `
     <div class="username-top">
@@ -2400,6 +2409,7 @@ function createTikTokCard(item) {
       <span class="badge ${status}">${statusText(item.status)}</span>
     </div>
     <p class="reason">${escapeHtml(item.reason)}</p>
+    ${scoreGrid}
     <div class="card-actions">
       <a class="link-button" href="${escapeHtml(link)}" target="_blank" rel="noreferrer">${escapeHtml(tr("buttons.openTikTok"))}</a>
       <button class="link-button tiktok-check-one" type="button">${escapeHtml(tr("buttons.check"))}</button>
@@ -2650,6 +2660,8 @@ function updateDiscordItem(username, patch) {
   const index = state.discordItems.findIndex((item) => item.username === username);
   if (index === -1) return;
   state.discordItems[index] = { ...state.discordItems[index], ...patch };
+  window.FindsenseLiveFeed?.append(state.discordItems[index].username, state.discordItems[index].status, "DC");
+  window.FindsenseTerminal?.write(normalizeStatus(state.discordItems[index].status), `discord ${state.discordItems[index].username}: ${state.discordItems[index].reason || "response parsed"}`, "DC");
   renderDiscord();
 }
 
@@ -2657,6 +2669,8 @@ function updateTikTokItem(username, patch) {
   const index = state.tiktokItems.findIndex((item) => item.username === username);
   if (index === -1) return;
   state.tiktokItems[index] = { ...state.tiktokItems[index], ...patch };
+  window.FindsenseLiveFeed?.append(state.tiktokItems[index].username, state.tiktokItems[index].status, "TT");
+  window.FindsenseTerminal?.write(normalizeStatus(state.tiktokItems[index].status), `tiktok @${state.tiktokItems[index].username}: ${state.tiktokItems[index].reason || "response parsed"}`, "TT");
   renderTikTok();
 }
 
@@ -2664,12 +2678,14 @@ function updateItem(username, patch) {
   const index = state.items.findIndex((item) => item.username === username);
   if (index === -1) return;
   state.items[index] = { ...state.items[index], ...patch };
+  window.FindsenseLiveFeed?.append(state.items[index].username, state.items[index].status, "TG");
+  window.FindsenseTerminal?.write(normalizeStatus(state.items[index].status), `telegram @${state.items[index].username}: ${state.items[index].reason || "response parsed"}`, "TG");
   render();
 }
 
 async function fetchCheckResult(username) {
-  const externalCheck = document.querySelector("#externalCheck")?.checked;
-  const path = `/api/check?username=${encodeURIComponent(username)}${externalCheck ? "&external=1" : ""}`;
+  const useFragment = document.querySelector("#externalCheck")?.checked;
+  const path = `/api/check?username=${encodeURIComponent(username)}${useFragment ? "&fragment=1" : ""}`;
   const urls = window.location.protocol === "http:" || window.location.protocol === "https:"
     ? [path]
     : [`http://localhost:5173${path}`, path];
@@ -2801,7 +2817,8 @@ async function checkOne(username) {
     updateItem(username, {
       status,
       link: normalizedResult.link,
-      fragmentLink: normalizedResult.fragmentLink,
+      fragmentLink: normalizedResult.fragmentLink || (normalizedResult.source === "fragment" ? normalizedResult.link : null),
+      source: normalizedResult.source,
       reason: displayReason,
       confidence: normalizedResult.confidence,
     });
@@ -3024,9 +3041,8 @@ function addTikTokManualCandidate() {
 async function checkAll() {
   checkAllButton.disabled = true;
   autoModeButton.disabled = true;
-  const externalCheck = document.querySelector("#externalCheck")?.checked;
 
-  await checkItemsWithLimit([...state.items], externalCheck ? 4 : 1, externalCheck ? 80 : 450);
+  await checkItemsWithLimit([...state.items], 1, 450);
 
   checkAllButton.disabled = false;
   autoModeButton.disabled = false;
@@ -3172,8 +3188,7 @@ async function runAutoMode() {
     }
 
     runState.textContent = `Авто: пачка ${batch}`;
-    const externalCheck = document.querySelector("#externalCheck")?.checked;
-    await checkItemsWithLimit([...state.items], externalCheck ? 4 : 1, externalCheck ? 80 : 450);
+    await checkItemsWithLimit([...state.items], 1, 450);
 
     if (state.autoRunning) await wait(650);
   }

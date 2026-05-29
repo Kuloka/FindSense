@@ -40,8 +40,10 @@ async function checkTelegramUsername(value, options = {}) {
   const local = validateTelegram(username);
   if (local && local.status !== STATUSES.MAYBE) return local;
 
-  const fragmentResult = await checkFragment(username);
-  if (fragmentResult && [STATUSES.RESERVED, STATUSES.RATE_LIMIT].includes(fragmentResult.status)) return fragmentResult;
+  if (options.fragment === true) {
+    const fragmentResult = await checkFragment(username);
+    if (fragmentResult && [STATUSES.RESERVED, STATUSES.RATE_LIMIT].includes(fragmentResult.status)) return fragmentResult;
+  }
 
   const { controller, timeout } = makeAbortSignal(9000);
   try {

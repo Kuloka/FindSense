@@ -1352,7 +1352,9 @@ function createServer() {
       try {
         const username = url.searchParams.get("username") || "";
         const clean = username.trim().replace(/^@/, "").toLowerCase();
-        const scanned = await scanner.checkTelegramUsername(clean);
+        const scanned = await scanner.checkTelegramUsername(clean, {
+          fragment: url.searchParams.get("fragment") === "1",
+        });
         if (
           hasTelegramApiConfig() &&
           [scanner.STATUSES.MAYBE, scanner.STATUSES.UNKNOWN].includes(scanned.status)
