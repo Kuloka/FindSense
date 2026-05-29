@@ -1,0 +1,18 @@
+{
+  "rir": {
+    "time": 1779880696885,
+    "result": {
+      "username": "rir",
+      "status": "taken",
+      "confidence": "high",
+      "valid": true,
+      "validityStatus": "valid",
+      "validityReason": "Формат подходит под правила Discord username.",
+      "reason": "Discord сообщает, что username занят.",
+      "source": "discord-api",
+      "external": {
+        "taken": true
+      }
+    }
+  }
+}

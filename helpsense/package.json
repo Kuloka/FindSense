@@ -1,0 +1,57 @@
+{
+  "name": "helpsense-desktop",
+  "version": "1.0.0",
+  "description": "Cross-platform desktop helper for guarded text work.",
+  "main": "main.js",
+  "author": "kuloka",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis portable",
+    "dist:mac": "electron-builder --mac dmg",
+    "dist:linux": "electron-builder --linux AppImage deb"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "dev.kuloka.helpsense",
+    "productName": "helpsense",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "icon": "src/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "mac": {
+      "icon": "src/icon.ico",
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "icon": "src/icon.ico",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    }
+  },
+  "dependencies": {
+    "mathjs": "^15.2.0"
+  }
+}

@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Findsense</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+              <div class="pyramid-scene">
+                <div class="logo-extrude">
+                  <div class="logo-depth depth-8"></div>
+                  <div class="logo-depth depth-7"></div>
+                  <div class="logo-depth depth-6"></div>
+                  <div class="logo-depth depth-5"></div>
+                  <div class="logo-depth depth-4"></div>
+                  <div class="logo-depth depth-3"></div>
+                  <div class="logo-depth depth-2"></div>
+                  <div class="logo-depth depth-1"></div>
+                  <div class="logo-side side-right"></div>
+                  <div class="logo-side side-bottom"></div>
+                  <div class="logo-face front-face"></div>
+                  <div class="logo-reflection"></div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <strong>FINDSENSE</strong>
+              <span>auto username finder</span>
+            </div>
+          </div>
+
+          <nav class="nav" aria-label="Разделы">
+            <button class="nav-item active" type="button" data-view="search" title="Telegram">
+              <img src="/telegram-icon.svg" alt="" />
+              <span>Telegram</span>
+            </button>
+            <button class="nav-item" type="button" data-view="discord" title="Discord">
+              <img src="/discord-icon.svg" alt="" />
+              <span>Discord</span>
+            </button>
+            <button class="nav-item" type="button" data-view="tiktok" title="TikTok">
+              <img src="/tiktok-icon.svg" alt="" />
+              <span>TikTok</span>
+            </button>
+            <button class="nav-item" type="button" data-view="settings" title="Настройки">
+              <img src="/settings-icon.svg" alt="" />
+              <span>Настройки</span>
+            </button>
+          </nav>
+        </aside>
+
+        <section class="content">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow" id="viewSubtitle">Telegram username scanner</p>
+              <h1><span>find</span><strong>sense</strong></h1>
+            </div>
+            <button class="ghost-button" id="copyFree" type="button">Скопировать свободные</button>
+          </header>
+
+          <section class="view active" id="view-search">
+            <section class="tool-grid">
+              <form class="control-panel" id="generatorForm">
+                <label>
+                  Режим
+                  <select id="candidateMode">
+                    <option value="random" selected>Случайные ники</option>
+                    <option value="english">Английские слова</option>
+                    <option value="names">Бренды / знаменитости</option>
+                  </select>
+                </label>
+
+                <label>
+                  Предпочтение
+                  <input id="prefix" maxlength="12" placeholder="ai, app, go" autocomplete="off" />
+                </label>
+
+                <label>
+                  Длина
+                  <select id="length">
+                    <option value="5" selected>5 символов</option>
+                    <option value="6">6 символов</option>
+                    <option value="7">7 символов</option>
+                    <option value="8">8 символов</option>
+                  </select>
+                </label>
+
+                <label>
+                  Количество
+                  <input id="count" type="number" min="5" max="80" value="24" />
+                </label>
+
+                <label>
+                  Одинаковые
+                  <select id="sameChars">
+                    <option value="0" selected>Любое число</option>
+                    <option value="1">Все разные</option>
+                    <option value="2">Ровно 2</option>
+                    <option value="3">Ровно 3</option>
+                    <option value="4">Ровно 4</option>
+                    <option value="two-symbols">2 символа (AAABB)</option>
+                    <option value="3+2">3 + 2 (AAABB)</option>
+                  </select>
+                </label>
+
+                <label>
+                  Символы
+                  <select id="charset">
+                    <option value="clean" selected>Читаемые</option>
+                    <option value="compact">Все буквы</option>
+                    <option value="numbers">С цифрами</option>
+                  </select>
+                </label>
+
+                <label class="toggle-row">
+                  <input id="beautifulOnly" type="checkbox" />
+                  <span>Только красивые</span>
+                </label>
+
+                <label class="toggle-row">
+                  <input id="externalCheck" type="checkbox" />
+                  <span>Внешняя проверка</span>
+                </label>
+
+                <div class="actions">
+                  <button class="primary-button" type="submit">Начать</button>
+                  <button class="secondary-button" id="checkAll" type="button">Проверить текущие</button>
+                  <button class="secondary-button" id="autoMode" type="button">Авто поиск</button>
+                </div>
+              </form>
+
+              <section class="manual-panel">
+                <label>
+                  Быстрая проверка
+                  <div class="manual-row">
+                    <input id="manualUsername" placeholder="@findsense" autocomplete="off" />
+                    <button class="secondary-button" id="checkManual" type="button">Проверить</button>
+                  </div>
+                </label>
+
+                <label>
+                  FINDSENSE
+                  <textarea id="fragmentInput" placeholder="FINDSENSE links, @fiverse, t.me/fiverse" spellcheck="false"></textarea>
+                </label>
+
+                <button class="secondary-button" id="checkFragment" type="button">Проверить FINDSENSE</button>
+
+                <div class="status-strip">
+                  <span><b id="totalCount">0</b> всего</span>
+                  <span><b id="freeCount">0</b> свободно</span>
+                  <span><b id="takenCount">0</b> занято</span>
+                </div>
+              </section>
+            </section>
+
+            <section class="auto-panel">
+              <div class="auto-head">
+                <div>
+                  <h2>Свободные</h2>
+                  <span id="autoState">Авто режим остановлен</span>
+                </div>
+                <button class="secondary-button" id="clearAutoFree" type="button">Очистить</button>
+              </div>
+              <div class="auto-free-list" id="autoFreeList"></div>
+            </section>
+
+            <section class="results-panel">
+              <div class="results-head">
+                <h2>Кандидаты</h2>
+                <span id="runState">Готов к поиску</span>
+              </div>
+              <div class="results" id="results"></div>
+            </section>
+          </section>
+
+          <section class="view" id="view-discord">
+            <section class="tool-grid">
+              <form class="control-panel" id="discordForm">
+                <label>
+                  Режим Discord
+                  <select id="discordMode">
+                    <option value="random" selected>Случайные неймы</option>
+                    <option value="english">Английские слова</option>
+                    <option value="names">Бренды / имена</option>
+                  </select>
+                </label>
+
+                <label>
+                  Начало
+                  <input id="discordPrefix" maxlength="12" placeholder="ai, dev, go" autocomplete="off" />
+                </label>
+
+                <label>
+                  Длина
+                  <select id="discordLength">
+                    <option value="2">2 символа</option>
+                    <option value="3">3 символа</option>
+                    <option value="4" selected>4 символа</option>
+                    <option value="5">5 символов</option>
+                    <option value="6">6 символов</option>
+                    <option value="7">7 символов</option>
+                    <option value="8">8 символов</option>
+                  </select>
+                </label>
+
+                <label>
+                  Количество
+                  <input id="discordCount" type="number" min="5" max="80" value="24" />
+                </label>
+
+                <label>
+                  Символы
+                  <select id="discordCharset">
+                    <option value="clean" selected>Читаемые</option>
+                    <option value="compact">Все буквы</option>
+                    <option value="numbers">С цифрами</option>
+                    <option value="discord">Discord: буквы, цифры, . _</option>
+                  </select>
+                </label>
+
+                <label>
+                  Скорость
+                  <select id="discordSpeed">
+                    <option value="slow" selected>Медленная</option>
+                    <option value="fast">Быстрая</option>
+                  </select>
+                </label>
+
+                <label class="toggle-row">
+                  <input id="discordBeautifulOnly" type="checkbox" />
+                  <span>Только красивые</span>
+                </label>
+
+                <div class="actions">
+                  <button class="primary-button" type="submit">Начать</button>
+                  <button class="secondary-button" id="discordCheckAll" type="button">Проверить текущие</button>
+                  <button class="secondary-button" id="discordAutoMode" type="button">Авто поиск</button>
+                </div>
+              </form>
+
+              <section class="manual-panel">
+                <label>
+                  Быстрая проверка Discord
+                  <div class="manual-row">
+                    <input id="discordManualUsername" placeholder="findsense" autocomplete="off" />
+                    <button class="secondary-button" id="discordCheckManual" type="button">Проверить</button>
+                  </div>
+                </label>
+
+                <div class="status-strip">
+                  <span><b id="discordTotalCount">0</b> всего</span>
+                  <span><b id="discordFreeCount">0</b> свободно</span>
+                  <span><b id="discordTakenCount">0</b> занято</span>
+                </div>
+              </section>
+            </section>
+
+            <section class="auto-panel">
+              <div class="auto-head">
+                <div>
+                  <h2>Свободные</h2>
+                  <span id="discordFreeState">Появятся после проверки</span>
+                </div>
+              </div>
+              <div class="auto-free-list" id="discordFreeList"></div>
+            </section>
+
+            <section class="results-panel">
+              <div class="results-head">
+                <h2>Discord кандидаты</h2>
+                <span id="discordRunState">Готов к поиску</span>
+              </div>
+              <div class="results" id="discordResults"></div>
+            </section>
+          </section>
+
+          <section class="view" id="view-tiktok">
+            <section class="tool-grid">
+              <form class="control-panel" id="tiktokForm">
+                <label>
+                  Режим TikTok
+                  <select id="tiktokMode">
+                    <option value="random" selected>Случайные неймы</option>
+                    <option value="english">Английские слова</option>
+                    <option value="names">Бренды / имена</option>
+                  </select>
+                </label>
+
+                <label>
+                  Начало
+                  <input id="tiktokPrefix" maxlength="12" placeholder="ai, dev, go" autocomplete="off" />
+                </label>
+
+                <label>
+                  Длина
+                  <select id="tiktokLength">
+                    <option value="3">3 символа</option>
+                    <option value="4" selected>4 символа</option>
+                    <option value="5">5 символов</option>
+                    <option value="6">6 символов</option>
+                    <option value="7">7 символов</option>
+                    <option value="8">8 символов</option>
+                  </select>
+                </label>
+
+                <label>
+                  Количество
+                  <input id="tiktokCount" type="number" min="5" max="80" value="24" />
+                </label>
+
+                <label>
+                  Символы
+                  <select id="tiktokCharset">
+                    <option value="clean" selected>Читаемые</option>
+                    <option value="compact">Все буквы</option>
+                    <option value="numbers">С цифрами</option>
+                    <option value="social">TikTok: буквы, цифры, . _</option>
+                  </select>
+                </label>
+
+                <label class="toggle-row">
+                  <input id="tiktokBeautifulOnly" type="checkbox" />
+                  <span>Только красивые</span>
+                </label>
+
+                <div class="actions">
+                  <button class="primary-button" type="submit">Начать</button>
+                  <button class="secondary-button" id="tiktokCheckAll" type="button">Проверить текущие</button>
+                  <button class="secondary-button" id="tiktokAutoMode" type="button">Авто поиск</button>
+                </div>
+              </form>
+
+              <section class="manual-panel">
+                <label>
+                  Быстрая проверка TikTok
+                  <div class="manual-row">
+                    <input id="tiktokManualUsername" placeholder="@findsense" autocomplete="off" />
+                    <button class="secondary-button" id="tiktokCheckManual" type="button">Проверить</button>
+                  </div>
+                </label>
+
+                <div class="status-strip">
+                  <span><b id="tiktokTotalCount">0</b> всего</span>
+                  <span><b id="tiktokFreeCount">0</b> свободно</span>
+                  <span><b id="tiktokTakenCount">0</b> занято</span>
+                </div>
+              </section>
+            </section>
+
+            <section class="auto-panel">
+              <div class="auto-head">
+                <div>
+                  <h2>Свободные / кандидаты</h2>
+                  <span id="tiktokFreeState">Появятся после проверки</span>
+                </div>
+              </div>
+              <div class="auto-free-list" id="tiktokFreeList"></div>
+            </section>
+
+            <section class="results-panel">
+              <div class="results-head">
+                <h2>TikTok кандидаты</h2>
+                <span id="tiktokRunState">Готов к поиску</span>
+              </div>
+              <div class="results" id="tiktokResults"></div>
+            </section>
+          </section>
+
+          <section class="view" id="view-free">
+            <section class="results-panel page-panel">
+              <div class="results-head">
+                <h2>Свободные юзернеймы</h2>
+                <span id="freeState">Появятся после проверки</span>
+              </div>
+              <div class="results" id="freeResults"></div>
+            </section>
+          </section>
+
+          <section class="view" id="view-export">
+            <section class="export-panel">
+              <div class="panel-title">Экспорт</div>
+              <textarea id="exportText" readonly spellcheck="false"></textarea>
+              <div class="actions">
+                <button class="primary-button" id="copyExport" type="button">Скопировать список</button>
+                <button class="secondary-button" id="refreshExport" type="button">Обновить</button>
+              </div>
+            </section>
+          </section>
+
+          <section class="view" id="view-settings">
+            <section class="settings-panel">
+              <div class="settings-head">
+                <h2>Настройки</h2>
+                <span>FINDSENSE</span>
+              </div>
+
+              <div class="settings-grid">
+                <label class="setting-row">
+                  <span>Авто поиск при старте</span>
+                  <input id="settingAutoStart" type="checkbox" />
+                </label>
+
+                <label class="setting-row">
+                  <span>Внешняя Telegram проверка</span>
+                  <input id="settingExternalCheck" type="checkbox" />
+                </label>
+
+                <label class="setting-row">
+                  <span>Компактный режим</span>
+                  <input id="settingCompactMode" type="checkbox" />
+                </label>
+
+                <label class="setting-row">
+                  <span>Анимация логотипа</span>
+                  <input id="settingLogoMotion" type="checkbox" checked />
+                </label>
+
+                <label class="setting-row">
+                  <span>Ватермарка</span>
+                  <input id="settingWatermark" type="checkbox" checked />
+                </label>
+              </div>
+            </section>
+          </section>
+
+          <section class="view" id="view-about">
+            <section class="about-panel">
+              <div class="about-logo"><span>FIND</span><strong>SENSE</strong></div>
+              <p>Утилита для поиска коротких свободных Telegram и Discord username.</p>
+              <p class="muted">style inspired by helpsense</p>
+              <p class="muted">by kuloka</p>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <div class="watermark" id="watermark">findsense | ready</div>
+    <div class="toast" id="toast">Готово</div>
+    <script src="/app.js?v=findsense-permanent-free-lists"></script>
+  </body>
+</html>
