@@ -1,0 +1,8 @@
+telegram-config.json
+*.session
+*.log
+node_modules/
+auto-usernames/
+win unlocked/
+win-unlocked/
+*.exe
