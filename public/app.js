@@ -907,8 +907,8 @@ const translations = {
       taken: "занят",
       invalid: "некорректен",
       reserved: "резерв",
-      unknown: "неясно",
-      maybe: "не подтверждено",
+      unknown: "макс. шанс",
+      maybe: "макс. шанс",
       rate_limit: "лимит",
       login_required: "нужен вход",
       error: "сбой",
@@ -922,6 +922,11 @@ const translations = {
       serviceFree: "Свободные имена появятся здесь после проверки.",
       discordFree: "Свободные Discord username появятся здесь после проверки.",
       tiktokFree: "TikTok username с максимальным шансом свободы появятся здесь после проверки.",
+    },
+    reason: {
+      telegramMaxChance: "Максимальный шанс свободности: Telegram не нашел надежных признаков занятого публичного профиля. Для точного подтверждения войди через telegram-login.cmd.",
+      discordMaxChance: "Максимальный шанс свободности: Discord не подтвердил, что ник занят. Проверь ник в приложении перед использованием.",
+      tiktokMaxChance: "Максимальный шанс свободности: TikTok не подтвердил публичный профиль с этим ником. Проверь ник в приложении перед использованием.",
     },
     states: {
       ready: "Готов к поиску",
@@ -1089,8 +1094,8 @@ const translations = {
       taken: "taken",
       invalid: "invalid",
       reserved: "reserved",
-      unknown: "unknown",
-      maybe: "unconfirmed",
+      unknown: "max chance",
+      maybe: "max chance",
       rate_limit: "rate limit",
       login_required: "login required",
       error: "error",
@@ -1104,6 +1109,11 @@ const translations = {
       serviceFree: "Available usernames will appear here after checks.",
       discordFree: "Available Discord usernames will appear here after checks.",
       tiktokFree: "High-confidence TikTok candidates will appear here after checks.",
+    },
+    reason: {
+      telegramMaxChance: "Maximum chance of availability: Telegram did not return reliable signs of a taken public profile. For exact confirmation, sign in through telegram-login.cmd.",
+      discordMaxChance: "Maximum chance of availability: Discord did not confirm that this username is taken. Check it in the app before using it.",
+      tiktokMaxChance: "Maximum chance of availability: TikTok did not confirm a public profile with this username. Check it in the app before using it.",
     },
     states: {
       ready: "Ready to search",
@@ -1916,6 +1926,10 @@ function normalizeStatus(status) {
   return String(status || "pending").toLowerCase();
 }
 
+function isMaxChanceFreeStatus(status) {
+  return ["free", "maybe", "unknown"].includes(normalizeStatus(status));
+}
+
 function isDefinitiveNotFreeStatus(status) {
   return ["taken", "reserved", "invalid"].includes(normalizeStatus(status));
 }
@@ -1938,9 +1952,9 @@ function isFreeCandidate(item) {
   if (current && (isDefinitiveNotFreeStatus(current.status) || isInvalidTelegramResult(current))) {
     return false;
   }
-  const status = isFreeLikeStatus(current?.status) ? current.status : item.status;
-  const result = isFreeLikeStatus(current?.status) ? current : item;
-  return isFreeLikeStatus(status) && !isInvalidTelegramResult(result) && !getLocalInvalidReason(item.username);
+  const status = isMaxChanceFreeStatus(current?.status) ? current.status : item.status;
+  const result = isMaxChanceFreeStatus(current?.status) ? current : item;
+  return isMaxChanceFreeStatus(status) && !isInvalidTelegramResult(result) && !getLocalInvalidReason(item.username);
 }
 
 function isAutoFreeCandidate(item) {
@@ -2008,6 +2022,27 @@ function mergeFreeItems(savedItems, currentItems) {
     if (item?.username && !items.has(item.username)) items.set(item.username, item);
   });
   return [...items.values()];
+}
+
+function getPlatformInvalidReason(platform, username) {
+  if (platform === "discord") return getDiscordUsernameValidationReason(username);
+  if (platform === "tiktok") return getTikTokUsernameValidationReason(username);
+  return getLocalInvalidReason(username);
+}
+
+function isMaxChanceCandidate(result = {}, username = result.username, platform = "telegram") {
+  const status = normalizeStatus(result.status);
+  if (!isMaxChanceFreeStatus(status)) return false;
+  if (["error", "rate_limit", "login_required"].includes(status)) return false;
+  if (isDefinitiveNotFreeStatus(status)) return false;
+  if (result.valid === false) return false;
+  if (username && getPlatformInvalidReason(platform, username)) return false;
+  return true;
+}
+
+function getMaxChanceReason(platform, result = {}) {
+  if (normalizeStatus(result.status) === "free" && result.reason) return result.reason;
+  return tr(`reason.${platform}MaxChance`);
 }
 
 function getGeneratorConfig() {
@@ -2572,7 +2607,7 @@ function render() {
 function renderDiscord() {
   renderDiscordCards();
 
-  const currentFreeItems = state.discordItems.filter((item) => normalizeStatus(item.status) === "free");
+  const currentFreeItems = state.discordItems.filter((item) => isMaxChanceCandidate(item, item.username, "discord"));
   const freeItems = mergeFreeItems(getPersistentServiceFreeItems("discord"), currentFreeItems);
   const free = freeItems.length;
   const taken = state.discordItems.filter((item) => normalizeStatus(item.status) === "taken").length;
@@ -2592,7 +2627,7 @@ function renderDiscord() {
 function renderTikTok() {
   renderTikTokCards();
 
-  const currentFreeItems = state.tiktokItems.filter((item) => normalizeStatus(item.status) === "free");
+  const currentFreeItems = state.tiktokItems.filter((item) => isMaxChanceCandidate(item, item.username, "tiktok"));
   const freeItems = mergeFreeItems(getPersistentServiceFreeItems("tiktok"), currentFreeItems);
   const free = freeItems.length;
   const taken = state.tiktokItems.filter((item) => normalizeStatus(item.status) === "taken").length;
@@ -2759,11 +2794,15 @@ async function checkOne(username) {
       : result;
     const status = normalizedResult.status || "UNKNOWN";
 
+    const displayReason = isMaxChanceCandidate({ ...normalizedResult, status }, username, "telegram")
+      ? getMaxChanceReason("telegram", { ...normalizedResult, status })
+      : normalizedResult.reason || tr("states.done");
+
     updateItem(username, {
       status,
       link: normalizedResult.link,
       fragmentLink: normalizedResult.fragmentLink,
-      reason: normalizedResult.reason || tr("states.done"),
+      reason: displayReason,
       confidence: normalizedResult.confidence,
     });
     state.checked.set(username, normalizedResult);
@@ -2771,9 +2810,9 @@ async function checkOne(username) {
       state.autoRunning = false;
       showToast("Telegram API login required");
     }
-    if (isFreeLikeStatus(status) && !isInvalidTelegramResult(normalizedResult)) {
-      rememberFreeItem(username, { ...normalizedResult, status });
-      if (state.autoRunning) await saveAutoFreeUsername(username);
+    if (isMaxChanceCandidate({ ...normalizedResult, status }, username, "telegram") && !isInvalidTelegramResult(normalizedResult)) {
+      rememberFreeItem(username, { ...normalizedResult, status, reason: displayReason });
+      if (state.autoRunning && isFreeLikeStatus(status)) await saveAutoFreeUsername(username);
     }
     return { status, result: normalizedResult };
   } catch (error) {
@@ -2812,18 +2851,23 @@ async function checkDiscordOne(username) {
     const { response, result } = await fetchDiscordCheckResult(clean);
     if (!response.ok) throw new Error(result.reason || "Проверка Discord завершилась ошибкой.");
 
+    const status = result.status || "unknown";
+    const displayReason = isMaxChanceCandidate({ ...result, status }, result.username || clean, "discord")
+      ? getMaxChanceReason("discord", { ...result, status })
+      : result.reason || tr("states.done");
+
     updateDiscordItem(username, {
       username: result.username || clean,
-      status: result.status || "unknown",
-      reason: result.reason || tr("states.done"),
+      status,
+      reason: displayReason,
       confidence: result.confidence,
       retryAfterMs: result.retryAfterMs,
       source: result.source,
     });
-    if (normalizeStatus(result.status) === "free") {
-      rememberServiceFreeItem("discord", result.username || clean, result);
+    if (isMaxChanceCandidate({ ...result, status }, result.username || clean, "discord")) {
+      rememberServiceFreeItem("discord", result.username || clean, { ...result, status, reason: displayReason });
     }
-    return { status: result.status || "unknown", result };
+    return { status, result };
   } catch (error) {
     updateDiscordItem(username, {
       status: "error",
@@ -2860,18 +2904,23 @@ async function checkTikTokOne(username) {
     const { response, result } = await fetchTikTokCheckResult(clean);
     if (!response.ok) throw new Error(result.reason || "Проверка TikTok завершилась ошибкой.");
 
+    const status = result.status || "unknown";
+    const displayReason = isMaxChanceCandidate({ ...result, status }, result.username || clean, "tiktok")
+      ? getMaxChanceReason("tiktok", { ...result, status })
+      : result.reason || tr("states.done");
+
     updateTikTokItem(username, {
       username: result.username || clean,
-      status: result.status || "unknown",
+      status,
       link: result.link,
-      reason: result.reason || tr("states.done"),
+      reason: displayReason,
       confidence: result.confidence,
       source: result.source,
     });
-    if (normalizeStatus(result.status) === "free") {
-      rememberServiceFreeItem("tiktok", result.username || clean, result);
+    if (isMaxChanceCandidate({ ...result, status }, result.username || clean, "tiktok")) {
+      rememberServiceFreeItem("tiktok", result.username || clean, { ...result, status, reason: displayReason });
     }
-    return { status: result.status || "unknown", result };
+    return { status, result };
   } catch (error) {
     updateTikTokItem(username, {
       status: "error",
