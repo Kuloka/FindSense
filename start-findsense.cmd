@@ -2,17 +2,17 @@
 setlocal
 cd /d "%~dp0"
 title Findsense
+set ELECTRON_RUN_AS_NODE=
 echo Starting Findsense...
 echo.
 echo Opening Findsense as a desktop app...
 echo.
-if exist "helpsense\node_modules\.bin\electron.cmd" (
-  call "helpsense\node_modules\.bin\electron.cmd" .
+if exist "node_modules\.bin\electron.cmd" (
+  call "node_modules\.bin\electron.cmd" .
 ) else (
-  echo Electron was not found. Starting browser server instead.
-  echo The server address will be shown below.
-  echo Press Ctrl+C to stop the server.
+  echo Electron was not found.
+  echo Run npm install, then start this file again.
   echo.
-  node main.js
+  pause
 )
 pause

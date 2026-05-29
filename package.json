@@ -5,10 +5,13 @@
   "main": "electron-main.js",
   "scripts": {
     "start": "node main.js",
-    "app": "electron .",
+    "app": "set ELECTRON_RUN_AS_NODE=& electron .",
     "telegram:login": "node telegram-login.js"
   },
   "dependencies": {
     "telegram": "^2.26.22"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1"
   }
 }
