@@ -16,7 +16,8 @@ FindSense is a desktop and local-browser username scanner for Telegram, Discord,
 
 
 
-<img width="2559" height="1389" alt="image" src="https://github.com/user-attachments/assets/440bc62a-74a3-4292-8763-4ff736715db9" />
+<img width="2559" height="1389" alt="image" src="https://github.com/user-attachments/assets/440bc62a-74a3-4292-8763-4ff736715db9" />          <img width="2559" height="1369" alt="Screenshot 2026-05-30 173006" src="https://github.com/user-attachments/assets/b4209330-55f4-4636-8587-f173af7567f4" />
+
 
 
 
