@@ -14,14 +14,16 @@
   window.FindsenseBootTerminal = { isActive: true };
 
   const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   const banner = [
-    "███████╗██╗███╗   ██╗██████╗ ███████╗███████╗███████╗███╗   ██╗███████╗███████╗",
-    "██╔════╝██║████╗  ██║██╔══██╗██╔════╝██╔════╝██╔════╝████╗  ██║██╔════╝██╔════╝",
-    "█████╗  ██║██╔██╗ ██║██║  ██║███████╗█████╗  █████╗  ██╔██╗ ██║███████╗█████╗",
-    "██╔══╝  ██║██║╚██╗██║██║  ██║╚════██║██╔══╝  ██╔══╝  ██║╚██╗██║╚════██║██╔══╝",
-    "██║     ██║██║ ╚████║██████╔╝███████║███████╗███████╗██║ ╚████║███████║███████╗",
-    "╚═╝     ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚══════╝╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝",
+    "███████╗██╗███╗   ██╗██████╗ ███████╗███████╗███╗   ██╗███████╗███████╗",
+    "██╔════╝██║████╗  ██║██╔══██╗██╔════╝██╔════╝████╗  ██║██╔════╝██╔════╝",
+    "█████╗  ██║██╔██╗ ██║██║  ██║███████╗█████╗  ██╔██╗ ██║███████╗█████╗",
+    "██╔══╝  ██║██║╚██╗██║██║  ██║╚════██║██╔══╝  ██║╚██╗██║╚════██║██╔══╝",
+    "██║     ██║██║ ╚████║██████╔╝███████║███████╗██║ ╚████║███████║███████╗",
+    "╚═╝     ╚═╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝",
   ];
+
   const sideArt = [
     "                                        _.oo.",
     "                 _.u[[/;:,.         .odMMMMMM'",
@@ -39,6 +41,7 @@
     "YMMMUP^",
     " ^^",
   ];
+
   const lines = [
     ...banner,
     "",
@@ -63,6 +66,7 @@
     "TYPE START TO CONTINUE",
     "",
   ];
+
   const finalBanner = [
     " █     █░▓█████  ██▓     ▄████▄   ▒█████   ███▄ ▄███▓▓█████          ▄▄▄█████▓ ▒█████            █    ██   ██████ ▓█████  ██▀███   ███▄    █  ▄▄▄       ███▄ ▄███▓▓█████            █████▒██▓ ███▄    █ ▓█████▄ ▓█████  ██▀███",
     "▓█░ █ ░█░▓█   ▀ ▓██▒    ▒██▀ ▀█  ▒██▒  ██▒▓██▒▀█▀ ██▒▓█   ▀          ▓  ██▒ ▓▒▒██▒  ██▒          ██  ▓██▒▒██    ▒ ▓█   ▀ ▓██ ▒ ██▒ ██ ▀█   █ ▒████▄    ▓██▒▀█▀ ██▒▓█   ▀          ▓██   ▒▓██▒ ██ ▀█   █ ▒██▀ ██▌▓█   ▀ ▓██ ▒ ██▒",
@@ -83,7 +87,7 @@
 
     if (!text) {
       row.innerHTML = "&nbsp;";
-      await wait(38);
+      await wait(14);
       return;
     }
 
@@ -93,27 +97,26 @@
       await wait(1);
     }
     panel.scrollTop = panel.scrollHeight;
-    await wait(36);
+    await wait(10);
   }
 
   async function boot() {
     input.disabled = true;
     form.classList.add("is-hidden");
-    for (let index = 0; index < lines.length; index += 1) {
-      const text = lines[index];
+    for (const text of lines) {
       const className = banner.includes(text)
         ? "ascii"
         : sideArt.includes(text)
           ? "art"
-        : text === "WELCOME TO FINDSENSE"
-          ? "welcome"
-          : text.startsWith("[success]")
-            ? "success"
-            : text.startsWith("[system]")
-              ? "system"
-              : text === "TYPE START TO CONTINUE"
-                ? "continue"
-                : "";
+          : text === "WELCOME TO FINDSENSE"
+            ? "welcome"
+            : text.startsWith("[success]")
+              ? "success"
+              : text.startsWith("[system]")
+                ? "system"
+                : text === "TYPE START TO CONTINUE"
+                  ? "continue"
+                  : "";
       await typeLine(text, className);
     }
     form.classList.remove("is-hidden");
@@ -129,6 +132,20 @@
     document.body.classList.remove("boot-locked");
     window.dispatchEvent(new CustomEvent("findsense:start-main"));
     setTimeout(() => terminal.remove(), 950);
+  }
+
+  async function runProgressBar() {
+    const row = document.createElement("div");
+    row.className = "boot-direct-line progress";
+    output.appendChild(row);
+
+    const width = 24;
+    for (let percent = 0; percent <= 100; percent += 1) {
+      const filled = Math.round((percent / 100) * width);
+      row.textContent = `[${"█".repeat(filled)}${"-".repeat(width - filled)}] ${percent}%`;
+      panel.scrollTop = panel.scrollHeight;
+      await wait(6);
+    }
   }
 
   form.addEventListener("submit", async (event) => {
@@ -154,20 +171,6 @@
     await wait(520);
     finishBoot();
   });
-
-  async function runProgressBar() {
-    const row = document.createElement("div");
-    row.className = "boot-direct-line progress";
-    output.appendChild(row);
-
-    const width = 24;
-    for (let percent = 0; percent <= 100; percent += 1) {
-      const filled = Math.round((percent / 100) * width);
-      row.textContent = `[${"█".repeat(filled)}${"-".repeat(width - filled)}] ${percent}%`;
-      panel.scrollTop = panel.scrollHeight;
-      await wait(6);
-    }
-  }
 
   input.addEventListener("input", () => {
     value.textContent = input.value;
