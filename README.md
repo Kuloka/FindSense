@@ -12,7 +12,7 @@ FindSense is a desktop and local-browser username scanner for Telegram, Discord,
 - Optional Telegram external checks.
 - Desktop mode with Electron, plus browser-server fallback.
 - Russian and English interface language setting.
-
+- Visual terminal inclusion ONLY VISUAL
 
 
 
