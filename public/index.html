@@ -6,7 +6,20 @@
     <title>Findsense</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
+  <body class="boot-locked">
+    <section class="boot-terminal boot-direct" id="bootTerminal" aria-label="FindSense startup terminal">
+      <div class="boot-direct-shell">
+        <div class="boot-direct-panel" id="bootDirectPanel">
+          <div class="boot-direct-output" id="bootDirectOutput" aria-live="polite"></div>
+          <form class="boot-direct-command" id="bootDirectCommand" autocomplete="off">
+            <span class="boot-direct-prompt">findsense@core:~$</span>
+            <span class="boot-direct-value" id="bootDirectValue"></span>
+            <input id="bootDirectInput" autocomplete="off" spellcheck="false" aria-label="Terminal command" />
+            <span class="boot-block-cursor" aria-hidden="true"></span>
+          </form>
+        </div>
+      </div>
+    </section>
     <canvas id="liquidDropsCanvas" class="liquid-drops-canvas" aria-hidden="true"></canvas>
     <div class="ambient-system" aria-hidden="true">
       <div class="grid-plane"></div>
@@ -101,6 +114,7 @@
                 <label>
                   Длина
                   <select id="length">
+                    <option value="4">4 символа</option>
                     <option value="5" selected>5 символов</option>
                     <option value="6">6 символов</option>
                     <option value="7">7 символов</option>
@@ -159,6 +173,8 @@
                     <input id="manualUsername" placeholder="@findsense" autocomplete="off" />
                     <button class="secondary-button" id="checkManual" type="button">Проверить</button>
                   </div>
+                  <div class="availability-status" id="telegramAvailabilityStatus" aria-live="polite"></div>
+                  <div class="suggestion-chips" id="telegramSuggestions"></div>
                 </label>
 
                 <label>
@@ -280,6 +296,8 @@
                     <input id="discordManualUsername" placeholder="findsense" autocomplete="off" />
                     <button class="secondary-button" id="discordCheckManual" type="button">Проверить</button>
                   </div>
+                  <div class="availability-status" id="discordAvailabilityStatus" aria-live="polite"></div>
+                  <div class="suggestion-chips" id="discordSuggestions"></div>
                 </label>
 
                 <div class="status-strip">
@@ -308,6 +326,7 @@
                   <h2>Свободные</h2>
                   <span id="discordFreeState">Появятся после проверки</span>
                 </div>
+                <button class="secondary-button" id="discordClearFree" type="button">Очистить</button>
               </div>
               <div class="auto-free-list" id="discordFreeList"></div>
             </section>
@@ -384,6 +403,8 @@
                     <input id="tiktokManualUsername" placeholder="@findsense" autocomplete="off" />
                     <button class="secondary-button" id="tiktokCheckManual" type="button">Проверить</button>
                   </div>
+                  <div class="availability-status" id="tiktokAvailabilityStatus" aria-live="polite"></div>
+                  <div class="suggestion-chips" id="tiktokSuggestions"></div>
                 </label>
 
                 <div class="status-strip">
@@ -412,6 +433,7 @@
                   <h2>Свободные / кандидаты</h2>
                   <span id="tiktokFreeState">Появятся после проверки</span>
                 </div>
+                <button class="secondary-button" id="tiktokClearFree" type="button">Очистить</button>
               </div>
               <div class="auto-free-list" id="tiktokFreeList"></div>
             </section>
@@ -502,14 +524,15 @@
       </section>
     </main>
 
-    <div class="watermark" id="watermark">findsense | ready</div>
-    <div class="toast" id="toast">Готово</div>
+    <div class="watermark" id="watermark"></div>
+    <div class="toast" id="toast"></div>
     <script src="/services/intelligence.js?v=cyber-ui"></script>
     <script src="/ui/live-feed.js?v=cyber-ui"></script>
     <script src="/ui/terminal.js?v=cyber-ui"></script>
     <script src="/effects/parallax.js?v=cyber-ui"></script>
     <script src="/effects/liquid-drops.js?v=minimal-liquid"></script>
     <script src="/animations/scan-orchestrator.js?v=cyber-ui"></script>
+    <script src="/boot-terminal.js?v=findsense-elite-terminal"></script>
     <script src="/app.js?v=findsense-language-settings"></script>
     <script>
       window.FindsenseLiquidDrops && window.FindsenseLiquidDrops.boot();

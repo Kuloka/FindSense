@@ -11,6 +11,8 @@ const autoFreeList = document.querySelector("#autoFreeList");
 const clearAutoFreeButton = document.querySelector("#clearAutoFree");
 const checkManualButton = document.querySelector("#checkManual");
 const manualUsername = document.querySelector("#manualUsername");
+const telegramAvailabilityStatus = document.querySelector("#telegramAvailabilityStatus");
+const telegramSuggestions = document.querySelector("#telegramSuggestions");
 const checkFragmentButton = document.querySelector("#checkFragment");
 const fragmentInput = document.querySelector("#fragmentInput");
 const copyFreeButton = document.querySelector("#copyFree");
@@ -26,8 +28,11 @@ const discordCheckAllButton = document.querySelector("#discordCheckAll");
 const discordAutoModeButton = document.querySelector("#discordAutoMode");
 const discordCheckManualButton = document.querySelector("#discordCheckManual");
 const discordManualUsername = document.querySelector("#discordManualUsername");
+const discordAvailabilityStatus = document.querySelector("#discordAvailabilityStatus");
+const discordSuggestions = document.querySelector("#discordSuggestions");
 const discordFreeList = document.querySelector("#discordFreeList");
 const discordFreeState = document.querySelector("#discordFreeState");
+const discordClearFreeButton = document.querySelector("#discordClearFree");
 const tiktokForm = document.querySelector("#tiktokForm");
 const tiktokResults = document.querySelector("#tiktokResults");
 const tiktokRunState = document.querySelector("#tiktokRunState");
@@ -35,8 +40,11 @@ const tiktokCheckAllButton = document.querySelector("#tiktokCheckAll");
 const tiktokAutoModeButton = document.querySelector("#tiktokAutoMode");
 const tiktokCheckManualButton = document.querySelector("#tiktokCheckManual");
 const tiktokManualUsername = document.querySelector("#tiktokManualUsername");
+const tiktokAvailabilityStatus = document.querySelector("#tiktokAvailabilityStatus");
+const tiktokSuggestions = document.querySelector("#tiktokSuggestions");
 const tiktokFreeList = document.querySelector("#tiktokFreeList");
 const tiktokFreeState = document.querySelector("#tiktokFreeState");
+const tiktokClearFreeButton = document.querySelector("#tiktokClearFree");
 const settingAutoStart = document.querySelector("#settingAutoStart");
 const settingExternalCheck = document.querySelector("#settingExternalCheck");
 const settingCompactMode = document.querySelector("#settingCompactMode");
@@ -1456,6 +1464,8 @@ function applyLanguage() {
   setText("#tiktokCheckManual", tr("buttons.check"));
   setText("#checkFragment", tr("buttons.checkFindsense"));
   setText("#clearAutoFree", tr("buttons.clear"));
+  setText("#discordClearFree", tr("buttons.clear"));
+  setText("#tiktokClearFree", tr("buttons.clear"));
   setText("#copyExport", tr("buttons.copyList"));
   setText("#refreshExport", tr("buttons.refresh"));
   setCounterLabel("totalCount", tr("stats.total"));
@@ -1643,12 +1653,9 @@ function isValidUsername(value) {
 }
 
 function getUsernameValidationReason(value) {
-  if (!/^[a-z]/.test(value)) return "Ник должен начинаться с буквы";
-  if (value.length < 5 || value.length > 32) return "Ник должен быть 5-32 символа";
+  if (!value) return "Введи username";
   if (!/^[a-z0-9_]+$/.test(value)) return "Можно использовать только a-z, 0-9 и _";
-  if (value.endsWith("_")) return "Ник не может заканчиваться на _";
-  if (value.includes("__")) return "Ник не может содержать несколько _ подряд";
-  if (/(.)\1\1/.test(value)) return "Ник не может содержать 3 одинаковых символа подряд";
+  if (value.length > 64) return "Username слишком длинный";
   return "";
 }
 
@@ -1665,9 +1672,9 @@ function sanitizeDiscordUsername(value) {
 }
 
 function getDiscordUsernameValidationReason(value) {
-  if (value.length < 2 || value.length > 32) return "Discord username должен быть 2-32 символа";
+  if (!value) return "Введи Discord username";
   if (!/^[a-z0-9_.]+$/.test(value)) return "Можно использовать только a-z, 0-9, _ и .";
-  if (value.includes("..")) return "Discord не принимает две точки подряд";
+  if (value.length > 64) return "Username слишком длинный";
   return "";
 }
 
@@ -1684,14 +1691,9 @@ function sanitizeTikTokUsername(value) {
 }
 
 function getTikTokUsernameValidationReason(value) {
-  if (value.length < 2 || value.length > 24) return "TikTok username должен быть 2-24 символа";
+  if (!value) return "Введи TikTok username";
   if (!/^[a-z0-9_.]+$/.test(value)) return "Можно использовать только a-z, 0-9, _ и .";
-  if (/^[._]/.test(value)) return "TikTok не принимает . или _ в начале";
-  if (/[._]$/.test(value)) return "TikTok не принимает . или _ в конце";
-  if (/[._]{2,}/.test(value)) return "TikTok не принимает подряд . или _";
-  if (/^\d+$/.test(value)) return "TikTok не принимает username только из цифр";
-  if (/tiktok|musically|bytedance/.test(value)) return "TikTok резервирует такие слова";
-  if (/(.)\1{3,}/.test(value)) return "TikTok может не принять 4 одинаковых символа подряд";
+  if (value.length > 64) return "Username слишком длинный";
   return "";
 }
 
@@ -1703,9 +1705,9 @@ function extractUsernamesFromFragment(value) {
   const found = new Set();
   const text = value.toLowerCase();
   const patterns = [
-    /(?:https?:\/\/)?(?:www\.)?fragment\.com\/username\/([a-z][a-z0-9_]{3,30}[a-z0-9])\b/g,
-    /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([a-z][a-z0-9_]{3,30}[a-z0-9])\b/g,
-    /@([a-z][a-z0-9_]{3,30}[a-z0-9])\b/g,
+    /(?:https?:\/\/)?(?:www\.)?fragment\.com\/username\/([a-z0-9_]{1,64})\b/g,
+    /(?:https?:\/\/)?(?:t\.me|telegram\.me)\/([a-z0-9_]{1,64})\b/g,
+    /@([a-z0-9_]{1,64})\b/g,
   ];
 
   patterns.forEach((pattern) => {
@@ -1957,7 +1959,7 @@ function isFreeCandidate(item) {
   }
   const status = isMaxChanceFreeStatus(current?.status) ? current.status : item.status;
   const result = isMaxChanceFreeStatus(current?.status) ? current : item;
-  return isMaxChanceFreeStatus(status) && !isInvalidTelegramResult(result) && !getLocalInvalidReason(item.username);
+  return isMaxChanceFreeStatus(status) && !isInvalidTelegramResult(result);
 }
 
 function isAutoFreeCandidate(item) {
@@ -2014,6 +2016,23 @@ function rememberServiceFreeItem(service, username, result = {}) {
     title: `${prefix}${username}`,
   });
   saveAutoFreeStorage();
+}
+
+function clearServiceFreeItems(service) {
+  if (service === "discord") {
+    state.discordFree.clear();
+    saveAutoFreeStorage();
+    renderDiscord();
+    showToast(tr("toast.freeCleared"));
+    return;
+  }
+
+  if (service === "tiktok") {
+    state.tiktokFree.clear();
+    saveAutoFreeStorage();
+    renderTikTok();
+    showToast(tr("toast.freeCleared"));
+  }
 }
 
 function mergeFreeItems(savedItems, currentItems) {
@@ -2074,7 +2093,7 @@ function getNameCandidates(config, previousCandidates) {
 
 function getListCandidates(source, config, previousCandidates) {
   const { prefix, length, count, beautifulOnly } = config;
-  const strictLength = Number.isFinite(length) && length >= 5 && length <= 32;
+  const strictLength = Number.isFinite(length) && length >= 1 && length <= 32;
   const pool = source.filter((word) => {
     if (!isValidUsername(word)) return false;
     if (strictLength && word.length !== length) return false;
@@ -2554,7 +2573,7 @@ function renderServiceFreeList(container, stateElement, items, options = {}) {
 
 function rememberFreeItem(username, result = {}) {
   const isTelegramConfirmed = result.checkedInsideTelegram && result.valid === true;
-  if ((!isTelegramConfirmed && getLocalInvalidReason(username)) || isInvalidTelegramResult(result)) {
+  if (isInvalidTelegramResult(result)) {
     return;
   }
 
@@ -2743,6 +2762,198 @@ async function fetchTikTokCheckResult(username) {
   }
 
   throw lastError || new Error("Не удалось подключиться к локальному серверу проверки.");
+}
+
+const usernameApiCache = new Map();
+
+function getUsernameApiBaseUrls(path) {
+  return window.location.protocol === "http:" || window.location.protocol === "https:"
+    ? [path]
+    : [`http://localhost:5173${path}`, path];
+}
+
+async function fetchJsonWithRetry(path, options = {}) {
+  const urls = getUsernameApiBaseUrls(path);
+  let lastError;
+
+  for (const url of urls) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await fetch(url);
+        const result = await response.json();
+        if (!response.ok && attempt < 2 && response.status >= 500) {
+          await wait(220 * (attempt + 1));
+          continue;
+        }
+        return { response, result };
+      } catch (error) {
+        lastError = error;
+        if (attempt < 2) await wait(220 * (attempt + 1));
+      }
+    }
+  }
+
+  throw lastError || new Error(options.errorMessage || "Unable to verify username, try again.");
+}
+
+function getAvailabilityElements(service) {
+  if (service === "discord") {
+    return {
+      input: discordManualUsername,
+      status: discordAvailabilityStatus,
+      suggestions: discordSuggestions,
+      state: discordRunState,
+    };
+  }
+  if (service === "tiktok") {
+    return {
+      input: tiktokManualUsername,
+      status: tiktokAvailabilityStatus,
+      suggestions: tiktokSuggestions,
+      state: tiktokRunState,
+    };
+  }
+  return {
+    input: manualUsername,
+    status: telegramAvailabilityStatus,
+    suggestions: telegramSuggestions,
+    state: runState,
+  };
+}
+
+function normalizeAvailabilityUsername(service, rawValue) {
+  if (service === "discord") return sanitizeDiscordUsername(rawValue);
+  if (service === "tiktok") return sanitizeTikTokUsername(rawValue);
+  return normalizeManualUsername(rawValue);
+}
+
+function getServiceLocalReason(service, username) {
+  if (service === "discord") return getDiscordUsernameValidationReason(username);
+  if (service === "tiktok") return getTikTokUsernameValidationReason(username);
+  return getLocalInvalidReason(username);
+}
+
+function getUsernameApiPath(endpoint, service, username) {
+  const platform = service === "telegram" ? "telegram" : service;
+  const params = new URLSearchParams({
+    platform,
+    username,
+  });
+  if (service === "telegram" && document.querySelector("#externalCheck")?.checked) params.set("fragment", "1");
+  if (service === "discord") params.set("speed", "fast");
+  return `/api/${endpoint}?${params.toString()}`;
+}
+
+async function fetchUsernameAvailability(service, username, options = {}) {
+  const endpoint = options.final ? "final-check-username" : "check-username";
+  const cacheKey = `${endpoint}:${service}:${username}:${document.querySelector("#externalCheck")?.checked ? 1 : 0}`;
+  const cached = usernameApiCache.get(cacheKey);
+  if (!options.final && cached && Date.now() - cached.at < 15000) return cached.value;
+
+  const value = await fetchJsonWithRetry(getUsernameApiPath(endpoint, service, username), {
+    errorMessage: "Unable to verify username, try again.",
+  });
+  if (!options.final) usernameApiCache.set(cacheKey, { at: Date.now(), value });
+  return value;
+}
+
+async function fetchUsernameSuggestions(service, username) {
+  return fetchJsonWithRetry(getUsernameApiPath("suggest-usernames", service, username), {
+    errorMessage: "Unable to build username suggestions right now.",
+  });
+}
+
+const availabilityDebounce = {
+  telegram: { timer: null, token: 0 },
+  discord: { timer: null, token: 0 },
+  tiktok: { timer: null, token: 0 },
+};
+
+function formatAvailabilityStatus(service, result = {}) {
+  const username = result.username || "";
+  const prefix = service === "discord" ? "" : "@";
+  const statusMap = {
+    available: "AVAILABLE",
+    taken: "TAKEN",
+    invalid: "INVALID",
+    reserved: "RESERVED",
+    unknown: "UNKNOWN",
+  };
+  const status = statusMap[result.status] || statusText(result.rawStatus || result.status || "unknown");
+  return `${prefix}${username}: ${status}${result.reason ? ` - ${result.reason}` : ""}`;
+}
+
+function setAvailabilityStatus(service, status, text) {
+  const { status: statusElement, state } = getAvailabilityElements(service);
+  if (statusElement) {
+    statusElement.className = `availability-status is-${status}`;
+    statusElement.textContent = text || "";
+  }
+  if (state) state.textContent = text || tr("states.ready");
+}
+
+function renderSuggestionChips(service, suggestions = []) {
+  const { input, suggestions: container } = getAvailabilityElements(service);
+  if (!container) return;
+  container.innerHTML = "";
+
+  suggestions.slice(0, 12).forEach((item) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "suggestion-chip";
+    button.textContent = service === "discord" ? item.username : `@${item.username}`;
+    button.addEventListener("click", () => {
+      input.value = service === "discord" ? item.username : `@${item.username}`;
+      scheduleAvailabilityCheck(service, input.value);
+    });
+    container.appendChild(button);
+  });
+}
+
+function scheduleAvailabilityCheck(service, rawValue) {
+  const config = availabilityDebounce[service];
+  if (!config) return;
+
+  clearTimeout(config.timer);
+  config.token += 1;
+  const token = config.token;
+
+  const username = normalizeAvailabilityUsername(service, rawValue);
+  const localReason = getServiceLocalReason(service, username);
+  renderSuggestionChips(service, []);
+
+  if (!username) {
+    setAvailabilityStatus(service, "idle", "");
+    return;
+  }
+
+  if (localReason) {
+    setAvailabilityStatus(service, "invalid", localReason);
+    return;
+  }
+
+  setAvailabilityStatus(service, "loading", `Checking ${service === "discord" ? username : `@${username}`}...`);
+
+  config.timer = setTimeout(async () => {
+    try {
+      const { response, result } = await fetchUsernameAvailability(service, username);
+      if (token !== config.token) return;
+      const normalized = { ...result, username: result.username || username };
+      const message = response.ok
+        ? formatAvailabilityStatus(service, normalized)
+        : result.reason || "Сервер отклонил username.";
+      setAvailabilityStatus(service, normalized.status || "unknown", message);
+
+      if (["taken", "reserved", "invalid"].includes(normalized.status)) {
+        const suggestionsResponse = await fetchUsernameSuggestions(service, username);
+        if (token !== config.token) return;
+        renderSuggestionChips(service, suggestionsResponse.result?.suggestions || []);
+      }
+    } catch (error) {
+      if (token !== config.token) return;
+      setAvailabilityStatus(service, "unknown", error.message || "Unable to verify username, try again.");
+    }
+  }, 450);
 }
 
 async function saveAutoFreeUsername(username) {
@@ -3310,93 +3521,106 @@ function setView(name) {
   renderTikTok();
 }
 
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-  startTelegramSearch();
-});
+function bootFindsenseApp() {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    startTelegramSearch();
+  });
 
-discordForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  startDiscordSearch();
-});
+  discordForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    startDiscordSearch();
+  });
 
-tiktokForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  startTikTokSearch();
-});
+  tiktokForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    startTikTokSearch();
+  });
 
-checkAllButton.addEventListener("click", checkAll);
-discordCheckAllButton.addEventListener("click", checkAllDiscord);
-tiktokCheckAllButton.addEventListener("click", checkAllTikTok);
-discordAutoModeButton?.addEventListener("click", toggleDiscordAutoMode);
-tiktokAutoModeButton?.addEventListener("click", toggleTikTokAutoMode);
-autoModeButton.addEventListener("click", toggleAutoMode);
-clearAutoFreeButton.addEventListener("click", () => {
-  state.autoFree.clear();
-  state.savedAutoFree.clear();
-  saveAutoFreeStorage();
-  render();
-  showToast(tr("toast.freeCleared"));
-});
-checkManualButton.addEventListener("click", addManualCandidate);
-discordCheckManualButton.addEventListener("click", addDiscordManualCandidate);
-tiktokCheckManualButton.addEventListener("click", addTikTokManualCandidate);
-checkFragmentButton.addEventListener("click", checkFragmentCandidates);
-manualUsername.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addManualCandidate();
-});
-discordManualUsername.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addDiscordManualCandidate();
-});
-tiktokManualUsername.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addTikTokManualCandidate();
-});
+  checkAllButton.addEventListener("click", checkAll);
+  discordCheckAllButton.addEventListener("click", checkAllDiscord);
+  tiktokCheckAllButton.addEventListener("click", checkAllTikTok);
+  discordAutoModeButton?.addEventListener("click", toggleDiscordAutoMode);
+  tiktokAutoModeButton?.addEventListener("click", toggleTikTokAutoMode);
+  autoModeButton.addEventListener("click", toggleAutoMode);
+  clearAutoFreeButton.addEventListener("click", () => {
+    state.autoFree.clear();
+    state.savedAutoFree.clear();
+    saveAutoFreeStorage();
+    render();
+    showToast(tr("toast.freeCleared"));
+  });
+  discordClearFreeButton?.addEventListener("click", () => clearServiceFreeItems("discord"));
+  tiktokClearFreeButton?.addEventListener("click", () => clearServiceFreeItems("tiktok"));
+  checkManualButton.addEventListener("click", addManualCandidate);
+  discordCheckManualButton.addEventListener("click", addDiscordManualCandidate);
+  tiktokCheckManualButton.addEventListener("click", addTikTokManualCandidate);
+  checkFragmentButton.addEventListener("click", checkFragmentCandidates);
+  manualUsername.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") addManualCandidate();
+  });
+  manualUsername.addEventListener("input", () => scheduleAvailabilityCheck("telegram", manualUsername.value));
+  discordManualUsername.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") addDiscordManualCandidate();
+  });
+  discordManualUsername.addEventListener("input", () => scheduleAvailabilityCheck("discord", discordManualUsername.value));
+  tiktokManualUsername.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") addTikTokManualCandidate();
+  });
+  tiktokManualUsername.addEventListener("input", () => scheduleAvailabilityCheck("tiktok", tiktokManualUsername.value));
 
-copyFreeButton.addEventListener("click", () => {
-  const freeItems = getAutoFreeItems().length ? getAutoFreeItems() : getFreeItems();
-  const freeUsernames = formatFreeUsernamesForCopy(freeItems);
-  copyText(freeUsernames, tr("toast.noFree"));
-});
+  copyFreeButton.addEventListener("click", () => {
+    const freeItems = getAutoFreeItems().length ? getAutoFreeItems() : getFreeItems();
+    const freeUsernames = formatFreeUsernamesForCopy(freeItems);
+    copyText(freeUsernames, tr("toast.noFree"));
+  });
 
-copyExportButton.addEventListener("click", () => copyText(exportText.value, tr("toast.emptyList")));
-refreshExportButton.addEventListener("click", () => {
-  renderExport();
-  showToast(tr("buttons.refresh"));
-});
+  copyExportButton.addEventListener("click", () => copyText(exportText.value, tr("toast.emptyList")));
+  refreshExportButton.addEventListener("click", () => {
+    renderExport();
+    showToast(tr("buttons.refresh"));
+  });
 
-document.querySelectorAll(".nav-item").forEach((button) => {
-  button.addEventListener("click", () => setView(button.dataset.view));
-});
+  document.querySelectorAll(".nav-item").forEach((button) => {
+    button.addEventListener("click", () => setView(button.dataset.view));
+  });
 
-bindSetting(settingAutoStart, "autoStart");
-bindSetting(settingExternalCheck, "externalCheck");
-bindSetting(settingCompactMode, "compactMode");
-bindSetting(settingLogoMotion, "logoMotion");
-bindSetting(settingWatermark, "watermark");
-setupInfoButtons();
-if (settingLanguage) {
-  settingLanguage.addEventListener("change", () => {
-    settings.language = settingLanguage.value;
+  bindSetting(settingAutoStart, "autoStart");
+  bindSetting(settingExternalCheck, "externalCheck");
+  bindSetting(settingCompactMode, "compactMode");
+  bindSetting(settingLogoMotion, "logoMotion");
+  bindSetting(settingWatermark, "watermark");
+  setupInfoButtons();
+  if (settingLanguage) {
+    settingLanguage.addEventListener("change", () => {
+      settings.language = settingLanguage.value;
+      saveSettings();
+      applySettings();
+      render();
+      renderDiscord();
+      renderTikTok();
+    });
+  }
+  bindPyramidMotion();
+  document.querySelector("#externalCheck")?.addEventListener("change", (event) => {
+    settings.externalCheck = event.target.checked;
     saveSettings();
     applySettings();
-    render();
-    renderDiscord();
-    renderTikTok();
   });
-}
-bindPyramidMotion();
-document.querySelector("#externalCheck")?.addEventListener("change", (event) => {
-  settings.externalCheck = event.target.checked;
-  saveSettings();
-  applySettings();
-});
 
-applySettings();
-loadAutoFreeStorage();
-setInterval(() => setWatermark("ready"), 30000);
-generateCandidates();
-generateDiscordCandidates();
-generateTikTokCandidates();
-if (settings.autoStart) {
-  setTimeout(() => startTelegramSearch(), 250);
+  applySettings();
+  loadAutoFreeStorage();
+  setInterval(() => setWatermark("ready"), 30000);
+  generateCandidates();
+  generateDiscordCandidates();
+  generateTikTokCandidates();
+  if (settings.autoStart) {
+    setTimeout(() => startTelegramSearch(), 250);
+  }
+}
+
+if (window.FindsenseBootTerminal?.isActive) {
+  window.addEventListener("findsense:start-main", bootFindsenseApp, { once: true });
+} else {
+  bootFindsenseApp();
 }

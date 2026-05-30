@@ -9,16 +9,20 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const AUTO_OUTPUT_DIR = path.join(__dirname, "auto-usernames");
 const TELEGRAM_CONFIG_PATH = path.join(__dirname, "telegram-config.json");
 const DISCORD_CACHE_PATH = path.join(__dirname, "discord-cache.json");
-const TELEGRAM_USERNAME = /^(?=.{5,32}$)[a-z][a-z0-9_]*[a-z0-9]$/i;
-const DISCORD_USERNAME = /^(?=.{2,32}$)[a-z0-9_.]+$/;
-const TIKTOK_USERNAME = /^(?=.{2,24}$)[a-z0-9_.]+$/;
-const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+const TELEGRAM_USERNAME = /^[a-z0-9_]+$/i;
+const DISCORD_USERNAME = /^[a-z0-9_.]+$/;
+const TIKTOK_USERNAME = /^[a-z0-9_.]+$/;
+const USERNAME_BUCKETS = "abcdefghijklmnopqrstuvwxyz0123456789";
 const telegramConfig = loadTelegramConfig();
 
 let telegramApiClientPromise = null;
 const externalUsernameCache = new Map();
 const discordUsernameCache = loadDiscordCache();
+const usernameCheckCache = new Map();
+const usernameReservations = new Map();
 const EXTERNAL_CACHE_TTL_MS = 10 * 60 * 1000;
+const USERNAME_CHECK_CACHE_TTL_MS = 20 * 1000;
+const USERNAME_RESERVATION_TTL_MS = 60 * 1000;
 const DISCORD_SUCCESS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const DISCORD_SOFT_CACHE_TTL_MS = 60 * 1000;
 const DISCORD_SPEED_GAPS_MS = {
@@ -109,26 +113,26 @@ function sendStatic(res, filePath) {
 async function ensureAutoOutputDirs() {
   await fs.promises.mkdir(AUTO_OUTPUT_DIR, { recursive: true });
   await Promise.all(
-    [...LETTERS].map((letter) => fs.promises.mkdir(path.join(AUTO_OUTPUT_DIR, letter), { recursive: true })),
+    [...USERNAME_BUCKETS].map((letter) => fs.promises.mkdir(path.join(AUTO_OUTPUT_DIR, letter), { recursive: true })),
   );
 }
 
 async function saveAutoUsername(username) {
   const clean = username.trim().replace(/^@/, "").toLowerCase();
-  const checkResult = await scanner.checkTelegramUsername(clean);
-  if (checkResult.status !== scanner.STATUSES.FREE) {
+  const finalResult = await checkPlatformUsername("telegram", clean, { final: true });
+  if (finalResult.status !== "available") {
     return {
       saved: false,
-      status: checkResult.status,
-      reason: checkResult.reason || "Username is not confirmed as free.",
+      status: finalResult.rawStatus || finalResult.status,
+      reason: finalResult.reason || "Username is not confirmed as free.",
     };
   }
 
   const firstLetter = clean[0];
-  if (!LETTERS.includes(firstLetter)) {
+  if (!USERNAME_BUCKETS.includes(firstLetter)) {
     return {
       saved: false,
-      reason: "Username must start with a-z.",
+      reason: "Username cannot be saved into a local bucket.",
     };
   }
 
@@ -164,12 +168,9 @@ async function saveAutoUsername(username) {
 }
 
 function getUsernameValidationReason(value) {
-  if (!/^[a-z]/i.test(value)) return "Username must start with a letter.";
-  if (value.length < 5 || value.length > 32) return "Use 5-32 characters.";
+  if (!value) return "Username is empty.";
   if (!/^[a-z0-9_]+$/i.test(value)) return "Use only letters, numbers, and underscores.";
-  if (value.endsWith("_")) return "Username cannot end with an underscore.";
-  if (value.includes("__")) return "Username cannot contain multiple underscores in a row.";
-  if (/(.)\1\1/i.test(value)) return "Username cannot contain 3 identical characters in a row.";
+  if (value.length > 64) return "Username is too long.";
   return "";
 }
 
@@ -177,12 +178,12 @@ function checkTelegramUsernameValidity(username) {
   const clean = username.trim().replace(/^@/, "").toLowerCase();
   const reason = getUsernameValidationReason(clean);
 
-  if (!TELEGRAM_USERNAME.test(clean) || reason) {
+  if (reason) {
     return {
       valid: false,
       status: "invalid",
       confidence: "high",
-      reason: reason || "Use 5-32 characters: letters, numbers, and underscores. Start with a letter.",
+      reason,
     };
   }
 
@@ -195,18 +196,16 @@ function checkTelegramUsernameValidity(username) {
 }
 
 function getDiscordUsernameValidationReason(value) {
-  if (value.length < 2 || value.length > 32) return "Discord username должен быть 2-32 символа.";
-  if (value !== value.toLowerCase()) return "Discord username должен быть в нижнем регистре.";
+  if (!value) return "Username is empty.";
   if (!DISCORD_USERNAME.test(value)) return "Можно использовать только a-z, 0-9, _ и точку.";
-  if (value.includes("..")) return "Discord не принимает две точки подряд.";
+  if (value.length > 64) return "Username is too long.";
   return "";
 }
 
 function getTikTokUsernameValidationReason(value) {
-  if (value.length < 2 || value.length > 24) return "TikTok username должен быть 2-24 символа.";
-  if (value !== value.toLowerCase()) return "TikTok username должен быть в нижнем регистре.";
+  if (!value) return "Username is empty.";
   if (!TIKTOK_USERNAME.test(value)) return "Можно использовать только a-z, 0-9, _ и точку.";
-  if (value.endsWith(".")) return "TikTok не принимает точку в конце username.";
+  if (value.length > 64) return "Username is too long.";
   return "";
 }
 
@@ -1334,6 +1333,254 @@ async function checkUsername(username, options = {}) {
   }
 }
 
+function normalizePlatform(value) {
+  const platform = String(value || "telegram").trim().toLowerCase();
+  return ["telegram", "discord", "tiktok"].includes(platform) ? platform : "telegram";
+}
+
+function normalizeUsernameForPlatform(platform, username) {
+  const clean = String(username || "").trim().replace(/^@/, "").toLowerCase();
+  if (platform === "discord") return clean.replace(/\s+/g, "");
+  return clean;
+}
+
+function getPlatformValidationReason(platform, username) {
+  if (platform === "discord") return getDiscordUsernameValidationReason(username);
+  if (platform === "tiktok") return getTikTokUsernameValidationReason(username);
+  return getUsernameValidationReason(username);
+}
+
+function toGenericUsernameStatus(status) {
+  if (status === scanner.STATUSES.FREE) return "available";
+  if (status === scanner.STATUSES.TAKEN) return "taken";
+  if (status === scanner.STATUSES.INVALID) return "invalid";
+  if (status === scanner.STATUSES.RESERVED) return "reserved";
+  return "unknown";
+}
+
+function toGenericUsernameResult(platform, username, result, options = {}) {
+  const status = toGenericUsernameStatus(result?.status);
+  return {
+    username,
+    platform,
+    status,
+    rawStatus: result?.status || scanner.STATUSES.UNKNOWN,
+    reason: result?.reason || (status === "unknown" ? "Unable to verify username right now." : ""),
+    checkedAt: result?.checkedAt || new Date().toISOString(),
+    final: Boolean(options.final),
+    source: result?.source || result?.parserResult?.parser || platform,
+    confidence: result?.confidence || "medium",
+    retryAfterMs: result?.retryAfterMs || null,
+    link: result?.link || null,
+  };
+}
+
+function getUsernameCacheKey(platform, username, options = {}) {
+  const fragment = options.fragment ? "fragment" : "plain";
+  const speed = options.speed || "";
+  return `${platform}:${username}:${fragment}:${speed}`;
+}
+
+function readUsernameCache(key) {
+  const cached = usernameCheckCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.at > USERNAME_CHECK_CACHE_TTL_MS) {
+    usernameCheckCache.delete(key);
+    return null;
+  }
+  return cached.value;
+}
+
+function writeUsernameCache(key, value) {
+  usernameCheckCache.set(key, { at: Date.now(), value });
+}
+
+async function runPlatformScanner(platform, username, options = {}) {
+  if (platform === "discord") {
+    const speed = normalizeDiscordSpeed(options.speed || "fast");
+    return scanner.checkDiscordUsername(username, { speed });
+  }
+
+  if (platform === "tiktok") {
+    return scanner.checkTikTokUsername(username);
+  }
+
+  const scanned = await scanner.checkTelegramUsername(username, {
+    fragment: options.fragment === true,
+  });
+
+  if (
+    hasTelegramApiConfig() &&
+    [scanner.STATUSES.MAYBE, scanner.STATUSES.UNKNOWN].includes(scanned.status)
+  ) {
+    const apiResult = normalizeTelegramApiScannerResult(username, await checkTelegramApiUsername(username));
+    return apiResult || scanned;
+  }
+
+  if (!hasTelegramApiConfig() && [scanner.STATUSES.MAYBE, scanner.STATUSES.UNKNOWN].includes(scanned.status)) {
+    return {
+      ...scanned,
+      reason: `${scanned.reason} Для точного FREE в Telegram нужна авторизация через telegram-login.cmd.`,
+      signals: [...(scanned.signals || []), "telegram-api-required"],
+    };
+  }
+
+  return scanned;
+}
+
+async function checkPlatformUsername(platformValue, usernameValue, options = {}) {
+  const platform = normalizePlatform(platformValue);
+  const username = normalizeUsernameForPlatform(platform, usernameValue);
+  const reason = getPlatformValidationReason(platform, username);
+
+  if (reason) {
+    return {
+      username,
+      platform,
+      status: "invalid",
+      rawStatus: scanner.STATUSES.INVALID,
+      reason,
+      checkedAt: new Date().toISOString(),
+      final: Boolean(options.final),
+      source: "server-validation",
+      confidence: "high",
+      retryAfterMs: null,
+      link: null,
+    };
+  }
+
+  const cacheKey = getUsernameCacheKey(platform, username, options);
+  if (!options.final) {
+    const cached = readUsernameCache(cacheKey);
+    if (cached) return { ...cached, cached: true };
+  }
+
+  const scanned = await runPlatformScanner(platform, username, options);
+  const result = toGenericUsernameResult(platform, username, scanned, options);
+  if (!options.final) writeUsernameCache(cacheKey, result);
+  return result;
+}
+
+function cleanupReservations() {
+  const now = Date.now();
+  for (const [key, reservation] of usernameReservations.entries()) {
+    if (reservation.expiresAt <= now) usernameReservations.delete(key);
+  }
+}
+
+function generateUsernameSuggestions(platform, username) {
+  const base = username.replace(/[^a-z0-9_.]/g, "").replace(/^[._]+|[._]+$/g, "");
+  const root = base || "user";
+  const compact = root.replace(/[._]/g, "");
+  const short = compact.slice(0, Math.max(2, Math.min(8, compact.length)));
+  const vowels = compact.replace(/[aeiou]/g, "");
+  const random = () => String(Math.floor(Math.random() * 9999) + 1);
+  const variants = new Set();
+
+  [root, compact, short, vowels].filter(Boolean).forEach((item) => {
+    variants.add(`${item}${random()}`);
+    variants.add(`${item}_${random()}`);
+    variants.add(`${item}${Math.floor(Math.random() * 99) + 1}`);
+    if (platform !== "telegram") variants.add(`${item}.${random()}`);
+    if (item.length > 3) variants.add(item.slice(0, -1));
+  });
+
+  [
+    ["a", "x"],
+    ["o", "0"],
+    ["i", "y"],
+    ["e", "3"],
+    ["s", "z"],
+  ].forEach(([from, to]) => {
+    if (compact.includes(from)) variants.add(compact.replace(new RegExp(from, "g"), to));
+  });
+
+  if (platform === "tiktok") {
+    variants.add(`${short}vibe${random().slice(0, 2)}`);
+    variants.add(`${short}x${random().slice(0, 3)}`);
+  } else if (platform === "discord") {
+    variants.add(`${short}_dev`);
+    variants.add(`${short}_hq`);
+  } else {
+    variants.add(`${short}_app`);
+    variants.add(`${short}_go`);
+  }
+
+  return [...variants]
+    .map((value) => normalizeUsernameForPlatform(platform, value))
+    .filter((value) => value && !getPlatformValidationReason(platform, value) && value !== username)
+    .slice(0, 36);
+}
+
+async function suggestPlatformUsernames(platformValue, usernameValue) {
+  const platform = normalizePlatform(platformValue);
+  const username = normalizeUsernameForPlatform(platform, usernameValue);
+  const candidates = generateUsernameSuggestions(platform, username);
+  const suggestions = [];
+
+  for (const candidate of candidates) {
+    if (suggestions.length >= 12) break;
+    try {
+      const result = await checkPlatformUsername(platform, candidate, {
+        speed: "fast",
+        fragment: platform === "telegram",
+      });
+      if (result.status === "available") suggestions.push(result);
+    } catch (error) {
+      // Suggestion checks are best-effort; the main username check remains authoritative.
+    }
+  }
+
+  return {
+    username,
+    platform,
+    suggestions,
+    count: suggestions.length,
+  };
+}
+
+async function reservePlatformUsername(platformValue, usernameValue) {
+  cleanupReservations();
+  const platform = normalizePlatform(platformValue);
+  const username = normalizeUsernameForPlatform(platform, usernameValue);
+  const key = `${platform}:${username}`;
+  const existing = usernameReservations.get(key);
+  const now = Date.now();
+
+  if (existing && existing.expiresAt > now) {
+    return {
+      reserved: false,
+      username,
+      platform,
+      status: "reserved",
+      reason: "Username is already temporarily reserved.",
+      expiresAt: new Date(existing.expiresAt).toISOString(),
+    };
+  }
+
+  const finalCheck = await checkPlatformUsername(platform, username, { final: true, fragment: true, speed: "fast" });
+  if (finalCheck.status !== "available") {
+    return {
+      reserved: false,
+      ...finalCheck,
+    };
+  }
+
+  const reservationId = `${platform}-${username}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  const expiresAt = now + USERNAME_RESERVATION_TTL_MS;
+  usernameReservations.set(key, { reservationId, expiresAt });
+
+  return {
+    reserved: true,
+    username,
+    platform,
+    status: "available",
+    reservationId,
+    expiresAt: new Date(expiresAt).toISOString(),
+    ttlMs: USERNAME_RESERVATION_TTL_MS,
+  };
+}
+
 function createServer() {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -1345,6 +1592,76 @@ function createServer() {
         "access-control-allow-headers": "content-type",
       });
       res.end();
+      return;
+    }
+
+    if (url.pathname === "/api/check-username" || url.pathname === "/api/checkUsername") {
+      try {
+        const platform = normalizePlatform(url.searchParams.get("platform"));
+        const username = url.searchParams.get("username") || "";
+        const result = await checkPlatformUsername(platform, username, {
+          fragment: url.searchParams.get("fragment") === "1",
+          speed: url.searchParams.get("speed") || "fast",
+        });
+        sendJson(res, 200, result);
+      } catch (error) {
+        sendJson(res, 502, {
+          status: "unknown",
+          reason: "Unable to verify username, try again.",
+          checkedAt: new Date().toISOString(),
+        });
+      }
+      return;
+    }
+
+    if (url.pathname === "/api/final-check-username" || url.pathname === "/api/finalCheckUsername") {
+      try {
+        const platform = normalizePlatform(url.searchParams.get("platform"));
+        const username = url.searchParams.get("username") || "";
+        const result = await checkPlatformUsername(platform, username, {
+          final: true,
+          fragment: true,
+          speed: url.searchParams.get("speed") || "fast",
+        });
+        sendJson(res, 200, result);
+      } catch (error) {
+        sendJson(res, 502, {
+          status: "unknown",
+          reason: "Unable to complete final username verification.",
+          checkedAt: new Date().toISOString(),
+        });
+      }
+      return;
+    }
+
+    if (url.pathname === "/api/suggest-usernames" || url.pathname === "/api/suggestUsernames") {
+      try {
+        const platform = normalizePlatform(url.searchParams.get("platform"));
+        const username = url.searchParams.get("username") || "";
+        sendJson(res, 200, await suggestPlatformUsernames(platform, username));
+      } catch (error) {
+        sendJson(res, 502, {
+          platform: normalizePlatform(url.searchParams.get("platform")),
+          suggestions: [],
+          reason: "Unable to build username suggestions right now.",
+        });
+      }
+      return;
+    }
+
+    if (url.pathname === "/api/reserve-username" || url.pathname === "/api/reserveUsername") {
+      try {
+        const platform = normalizePlatform(url.searchParams.get("platform"));
+        const username = url.searchParams.get("username") || "";
+        const result = await reservePlatformUsername(platform, username);
+        sendJson(res, result.reserved ? 200 : 409, result);
+      } catch (error) {
+        sendJson(res, 502, {
+          reserved: false,
+          status: "unknown",
+          reason: "Unable to reserve username right now.",
+        });
+      }
       return;
     }
 

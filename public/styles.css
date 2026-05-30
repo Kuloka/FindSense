@@ -2975,3 +2975,1100 @@ input[type="checkbox"]:disabled {
     transform: skewX(-18deg) translateX(260%);
   }
 }
+
+.availability-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 22px;
+  margin-top: 8px;
+  color: rgba(226, 235, 244, .72);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  transition: color .2s ease, opacity .2s ease;
+}
+
+.availability-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: .85;
+  flex: 0 0 auto;
+}
+
+.availability-status:empty {
+  display: none;
+}
+
+.availability-status.is-loading {
+  color: #d8e7f6;
+}
+
+.availability-status.is-available {
+  color: #8ee5c8;
+}
+
+.availability-status.is-taken,
+.availability-status.is-invalid {
+  color: #ff9f9f;
+}
+
+.availability-status.is-reserved {
+  color: #c8b6ff;
+}
+
+.availability-status.is-unknown {
+  color: #f3d98a;
+}
+
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.suggestion-chips:empty {
+  display: none;
+}
+
+.suggestion-chip {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 999px;
+  color: rgba(239, 246, 252, .9);
+  background: rgba(255, 255, 255, .08);
+  box-shadow: none;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background .18s ease, transform .18s ease, border-color .18s ease;
+}
+
+.suggestion-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, .22);
+  background: rgba(255, 255, 255, .14);
+}
+
+/* FindSense startup terminal */
+body.boot-locked {
+  overflow: hidden;
+  background: #020509 !important;
+}
+
+body.boot-locked .app-shell,
+body.boot-locked .watermark,
+body.boot-locked .toast {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(.985);
+}
+
+body.boot-complete {
+  overflow: auto;
+}
+
+body.boot-complete .app-shell,
+body.boot-complete .watermark,
+body.boot-complete .toast {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1);
+}
+
+.boot-terminal {
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  display: block;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 12%, rgba(78, 164, 255, .13), transparent 28%),
+    linear-gradient(180deg, #030405 0%, #05070a 54%, #010203 100%);
+  color: #f7fbff;
+  font-family: "Cascadia Mono", "Consolas", "SFMono-Regular", "Courier New", monospace;
+  transition: opacity .72s ease, filter .72s ease, transform .72s ease;
+}
+
+body.boot-complete .boot-terminal {
+  opacity: 0;
+  filter: blur(10px) brightness(1.2);
+  transform: scale(1.025);
+  pointer-events: none;
+}
+
+.boot-scanlines,
+.boot-vignette,
+.boot-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.boot-scanlines {
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, .032) 0,
+    rgba(255, 255, 255, .032) 1px,
+    transparent 1px,
+    transparent 5px
+  );
+  mix-blend-mode: screen;
+  opacity: .28;
+}
+
+.boot-vignette {
+  background:
+    linear-gradient(90deg, rgba(77, 166, 255, .08), transparent 16%, transparent 86%, rgba(77, 166, 255, .06)),
+    radial-gradient(circle at center, transparent 52%, rgba(0, 0, 0, .66) 100%);
+}
+
+.boot-noise {
+  background-image:
+    radial-gradient(circle at 18% 30%, rgba(255, 255, 255, .16) 0 1px, transparent 1px),
+    radial-gradient(circle at 72% 68%, rgba(95, 173, 255, .14) 0 1px, transparent 1px);
+  background-size: 58px 58px, 83px 83px;
+  opacity: .12;
+  animation: bootNoiseDrift 1.6s steps(3, end) infinite;
+}
+
+.boot-frame {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 44px minmax(0, 1fr) auto;
+  border: 0;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .035), transparent 170px),
+    rgba(0, 0, 0, .7);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .045) inset,
+    inset 0 0 90px rgba(0, 0, 0, .86);
+  backdrop-filter: none;
+  overflow: hidden;
+}
+
+.boot-frame::before {
+  content: "";
+  position: absolute;
+  inset: 42px 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(91, 171, 255, .58), transparent);
+}
+
+.boot-topbar {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 10px 10px 10px max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, .11);
+  background: rgba(0, 0, 0, .72);
+  padding: 0 22px;
+}
+
+.boot-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, .48);
+}
+
+.boot-dot:nth-child(2) {
+  background: #5daeff;
+  box-shadow: 0 0 14px rgba(93, 174, 255, .62);
+}
+
+.boot-dot:nth-child(3) {
+  background: #9aa6b2;
+  box-shadow: 0 0 12px rgba(255, 255, 255, .28);
+}
+
+.boot-topbar strong {
+  color: #ffffff;
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+
+.boot-topbar em {
+  overflow: hidden;
+  color: rgba(220, 232, 244, .7);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.boot-console {
+  min-width: 0;
+  overflow: auto;
+  padding: clamp(18px, 3vw, 44px) clamp(16px, 4vw, 70px) 22px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, .16);
+}
+
+.boot-line {
+  min-height: 18px;
+  color: rgba(236, 244, 252, .9);
+  font-size: clamp(12px, 1.18vw, 16px);
+  font-weight: 700;
+  line-height: 1.28;
+  white-space: pre;
+  opacity: 0;
+  transform: translateY(5px);
+  animation: bootLineIn .22s ease forwards;
+}
+
+.boot-line.dim {
+  color: rgba(150, 164, 178, .78);
+}
+
+.boot-line.banner {
+  color: #ffffff;
+  font-size: clamp(8px, 1.28vw, 18px);
+  font-weight: 900;
+  line-height: 1.06;
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, .22),
+    0 0 26px rgba(93, 174, 255, .14);
+}
+
+.boot-line.welcome {
+  margin: 4px 0;
+  color: #ffffff;
+  font-size: clamp(24px, 4vw, 52px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 0 18px rgba(255, 255, 255, .26),
+    0 0 44px rgba(93, 174, 255, .22);
+}
+
+.boot-line.ok {
+  color: #ffffff;
+}
+
+.boot-line.ok::first-letter {
+  color: #6bb6ff;
+}
+
+.boot-line.rule {
+  color: rgba(104, 179, 255, .78);
+}
+
+.boot-line.spacer {
+  min-height: 14px;
+}
+
+.boot-command {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, .11);
+  background: rgba(0, 0, 0, .86);
+  padding: 18px clamp(16px, 4vw, 70px) 22px;
+}
+
+.boot-command label {
+  color: rgba(255, 255, 255, .92) !important;
+  font-size: clamp(16px, 2.2vw, 28px) !important;
+  font-weight: 900;
+  line-height: 1.05 !important;
+  padding-top: 0;
+  text-shadow: 0 0 18px rgba(93, 174, 255, .24);
+}
+
+.boot-input-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) 12px;
+  align-items: center;
+  gap: 10px;
+  color: #6bb6ff;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.boot-input-row input {
+  width: 100%;
+  min-height: 30px !important;
+  height: 30px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  font-family: inherit;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  text-transform: uppercase;
+}
+
+.boot-input-row input::placeholder {
+  color: rgba(255, 255, 255, .52);
+}
+
+.boot-input-row i {
+  width: 10px;
+  height: 22px;
+  background: #ffffff;
+  box-shadow: 0 0 16px rgba(93, 174, 255, .72);
+  animation: bootCursorBlink .86s steps(1, end) infinite;
+}
+
+.boot-command.is-waiting {
+  opacity: .72;
+}
+
+.boot-command.is-ready .boot-input-row {
+  animation: bootReadyPulse 2.6s ease-in-out infinite;
+}
+
+.boot-command.is-error {
+  animation: bootShake .18s linear 2;
+}
+
+.boot-command.is-error .boot-input-row {
+  color: #ff8e8e;
+}
+
+@keyframes bootLineIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bootCursorBlink {
+  0%,
+  48% { opacity: 1; }
+  49%,
+  100% { opacity: 0; }
+}
+
+@keyframes bootReadyPulse {
+  0%,
+  100% { filter: drop-shadow(0 0 0 rgba(93, 174, 255, 0)); }
+  50% { filter: drop-shadow(0 0 10px rgba(93, 174, 255, .34)); }
+}
+
+@keyframes bootNoiseDrift {
+  0% { transform: translate3d(0, 0, 0); }
+  33% { transform: translate3d(8px, -7px, 0); }
+  66% { transform: translate3d(-5px, 6px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes bootShake {
+  0%,
+  100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+@media (max-width: 760px) {
+  .boot-frame {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  .boot-console {
+    padding: 18px 14px 12px;
+  }
+
+  .boot-line.banner {
+    font-size: 7px;
+  }
+
+  .boot-input-row {
+    grid-template-columns: 1fr 10px;
+  }
+
+  .boot-input-row span {
+    display: none;
+  }
+}
+
+/* Premium product launch screen */
+.boot-product {
+  --boot-x: 0;
+  --boot-y: 0;
+  display: grid !important;
+  place-items: center !important;
+  background:
+    radial-gradient(circle at calc(50% + (var(--boot-x) * 18%)) calc(18% + (var(--boot-y) * 12%)), rgba(118, 184, 255, .18), transparent 34%),
+    radial-gradient(circle at calc(18% - (var(--boot-x) * 10%)) calc(82% - (var(--boot-y) * 10%)), rgba(255, 255, 255, .07), transparent 30%),
+    linear-gradient(145deg, #030508 0%, #080d14 54%, #020305 100%) !important;
+  color: #f8fbff;
+  font-family: Inter, "SF Pro Display", "Segoe UI", Arial, sans-serif;
+}
+
+.boot-product .boot-scanlines,
+.boot-product .boot-vignette,
+.boot-product .boot-noise,
+.boot-product .boot-frame {
+  display: none !important;
+}
+
+.boot-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: .78;
+}
+
+.boot-aurora {
+  position: absolute;
+  z-index: 0;
+  width: 42vw;
+  height: 42vw;
+  min-width: 360px;
+  min-height: 360px;
+  border-radius: 999px;
+  filter: blur(72px);
+  pointer-events: none;
+  transform: translate3d(calc(var(--boot-x) * 28px), calc(var(--boot-y) * 28px), 0);
+  transition: transform .18s ease-out;
+}
+
+.boot-aurora-a {
+  top: -14%;
+  right: 5%;
+  background: rgba(91, 171, 255, .18);
+  animation: bootAuroraFloat 8s ease-in-out infinite alternate;
+}
+
+.boot-aurora-b {
+  left: -10%;
+  bottom: -16%;
+  background: rgba(255, 255, 255, .08);
+  animation: bootAuroraFloat 10s ease-in-out infinite alternate-reverse;
+}
+
+.boot-product-card {
+  position: relative;
+  z-index: 1;
+  width: min(620px, calc(100vw - 34px));
+  min-height: 560px;
+  display: grid;
+  align-content: start;
+  gap: 24px;
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .045)),
+    rgba(8, 13, 21, .72);
+  box-shadow:
+    0 34px 110px rgba(0, 0, 0, .48),
+    0 0 0 1px rgba(255, 255, 255, .04) inset,
+    0 0 70px rgba(91, 171, 255, .11);
+  padding: clamp(26px, 4vw, 44px);
+  overflow: hidden;
+  backdrop-filter: blur(28px) saturate(1.25);
+  transform:
+    perspective(1000px)
+    rotateX(calc(var(--boot-y) * -2deg))
+    rotateY(calc(var(--boot-x) * 2deg))
+    translate3d(calc(var(--boot-x) * 8px), calc(var(--boot-y) * 8px), 0);
+  transition: transform .18s ease-out;
+  animation: bootCardIn .8s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.boot-product-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 28% 0%, rgba(255, 255, 255, .2), transparent 34%),
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, .08) 38%, transparent 56%);
+  opacity: .78;
+  pointer-events: none;
+}
+
+.boot-product-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.boot-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(223, 234, 246, .72);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.boot-brand-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 18px rgba(255, 255, 255, .28);
+}
+
+.boot-hero {
+  display: grid;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.boot-hero h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(42px, 7vw, 74px);
+  font-weight: 900;
+  line-height: .92;
+  letter-spacing: 0;
+  text-shadow: 0 0 38px rgba(91, 171, 255, .18);
+}
+
+.boot-capabilities {
+  display: grid;
+  gap: 7px;
+  color: rgba(239, 246, 253, .86);
+  font-size: clamp(16px, 2.1vw, 21px);
+  font-weight: 750;
+  line-height: 1.28;
+}
+
+.boot-subtitle {
+  margin: 0;
+  color: rgba(239, 246, 253, .88);
+  font-size: clamp(18px, 2.5vw, 26px);
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.boot-code-block {
+  display: grid;
+  gap: 8px;
+  min-height: 286px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, .025)),
+    rgba(0, 6, 12, .48);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .06),
+    0 18px 48px rgba(0, 0, 0, .22);
+  padding: 16px;
+  font-family: "Cascadia Mono", Consolas, "SFMono-Regular", monospace;
+  overflow: hidden;
+}
+
+.boot-prompt {
+  color: rgba(123, 188, 255, .92);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.boot-status-list {
+  display: grid;
+  gap: 5px;
+  min-height: 190px;
+  margin-top: 0;
+}
+
+.boot-code-line {
+  min-height: 19px;
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  color: rgba(235, 244, 253, .9);
+  font-size: 13px;
+  font-weight: 760;
+  line-height: 1.35;
+  opacity: 0;
+  transform: translateY(4px);
+  animation: bootSoftIn .18s ease forwards;
+}
+
+.boot-code-line.spacer {
+  display: block;
+  min-height: 9px;
+}
+
+.boot-check {
+  color: #80c2ff;
+  text-shadow: 0 0 14px rgba(91, 171, 255, .34);
+}
+
+.boot-code-line strong {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(245, 249, 253, .9);
+  font-weight: 780;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.boot-system-ready {
+  min-height: 76px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+  white-space: pre;
+  opacity: 0;
+  text-shadow: 0 0 18px rgba(91, 171, 255, .2);
+}
+
+.boot-system-ready.show {
+  opacity: 1;
+}
+
+.boot-status-row {
+  min-height: 28px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: rgba(235, 244, 253, .9);
+  font-size: 14px;
+  font-weight: 760;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: bootSoftIn .42s cubic-bezier(.2, .8, .2, 1) var(--delay) forwards;
+}
+
+.boot-status-row span {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(123, 188, 255, .42);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(80, 158, 242, .18);
+  box-shadow: 0 0 18px rgba(91, 171, 255, .16);
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.boot-status-row strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.boot-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .42s ease, transform .42s cubic-bezier(.2, .8, .2, 1);
+}
+
+.boot-summary.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.boot-summary strong,
+.boot-summary span {
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .055);
+  color: rgba(244, 249, 255, .92);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.boot-summary strong {
+  color: #ffffff;
+  background: rgba(91, 171, 255, .12);
+  box-shadow: inset 0 0 0 1px rgba(123, 188, 255, .08);
+}
+
+.boot-initialize {
+  width: 100%;
+  min-height: 62px;
+  display: none;
+  place-items: center;
+  border: 1px solid rgba(180, 220, 255, .62);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .94), rgba(211, 234, 255, .9)),
+    #eef7ff;
+  color: #07111d;
+  box-shadow:
+    0 18px 44px rgba(91, 171, 255, .26),
+    0 0 42px rgba(91, 171, 255, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .95);
+  font-size: 14px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  transition:
+    transform .2s cubic-bezier(.2, .8, .2, 1),
+    box-shadow .2s ease,
+    filter .2s ease,
+    opacity .22s ease;
+}
+
+.boot-initialize.show {
+  display: grid;
+  animation: bootSoftIn .46s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.boot-initialize:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 24px 56px rgba(91, 171, 255, .34),
+    0 0 58px rgba(91, 171, 255, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .98);
+}
+
+.boot-initialize:active {
+  transform: translateY(1px) scale(.985);
+}
+
+.boot-loader {
+  display: none;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.boot-loader.show {
+  display: grid;
+  animation: bootSoftIn .38s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.boot-loader-line {
+  min-height: 22px;
+  color: rgba(238, 246, 255, .88);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.boot-progress {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.boot-progress span {
+  width: 0%;
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffffff, #d8d8d8 70%, #a8a8a8);
+  box-shadow: 0 0 22px rgba(255, 255, 255, .22);
+  transition: width .18s ease;
+}
+
+.boot-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(206, 220, 235, .72);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.boot-progress-meta strong {
+  color: #ffffff;
+}
+
+@keyframes bootCardIn {
+  from {
+    opacity: 0;
+    transform:
+      perspective(1000px)
+      rotateX(calc(var(--boot-y) * -2deg))
+      rotateY(calc(var(--boot-x) * 2deg))
+      translate3d(calc(var(--boot-x) * 8px), calc(var(--boot-y) * 8px + 18px), 0)
+      scale(.96);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bootSoftIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bootAuroraFloat {
+  from {
+    opacity: .72;
+    scale: 1;
+  }
+  to {
+    opacity: 1;
+    scale: 1.12;
+  }
+}
+
+@media (max-width: 680px) {
+  .boot-product-card {
+    width: calc(100vw - 22px);
+    min-height: auto;
+    gap: 20px;
+    border-radius: 22px;
+    padding: 24px;
+  }
+
+  .boot-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .boot-status-row strong {
+    white-space: normal;
+  }
+}
+
+/* Direct terminal startup */
+.boot-direct {
+  display: block !important;
+  background: #000000 !important;
+  color: #ffffff;
+  font-family: Consolas, "Lucida Console", "Courier New", monospace !important;
+}
+
+.boot-direct-shell {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+.boot-direct-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  background: #000000;
+  box-shadow: none;
+}
+
+.boot-direct-output {
+  position: static;
+  overflow: visible;
+  padding: 18px 0 0 18px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  text-shadow: none;
+}
+
+.boot-direct-line {
+  min-height: 1.25em;
+  color: #ffffff;
+  white-space: pre-wrap;
+}
+
+.boot-direct-line.ascii {
+  color: #ffffff;
+  font-size: clamp(7px, .82vw, 14px);
+  font-weight: 400;
+  line-height: 1.08;
+  white-space: pre;
+  letter-spacing: 0;
+}
+
+.boot-direct-line.art {
+  color: #ffffff;
+  font-size: clamp(9px, 1vw, 15px);
+  font-weight: 400;
+  line-height: 1.08;
+  white-space: pre;
+}
+
+.boot-direct-line.welcome {
+  margin: 14px 0 4px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 400;
+  white-space: pre;
+}
+
+.boot-direct-line.continue {
+  color: #ffffff;
+  font-weight: 400;
+}
+
+.boot-direct-line.percent,
+.boot-direct-line.progress {
+  color: #ffffff;
+}
+
+.boot-direct-line.final {
+  color: #ffffff;
+  font-size: clamp(6px, .72vw, 12px);
+  font-weight: 400;
+  line-height: 1.05;
+  white-space: pre;
+}
+
+.boot-direct[data-finished="true"] {
+  opacity: 0;
+  transition: opacity .9s ease;
+  pointer-events: none;
+}
+
+.boot-direct-line.brand {
+  margin-bottom: 2px;
+  color: #ffffff;
+  font-size: clamp(32px, 5vw, 68px);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.boot-direct-line.subtitle {
+  margin-bottom: 18px;
+  color: rgba(210, 210, 210, .95);
+  font-size: clamp(16px, 1.8vw, 24px);
+  font-weight: 850;
+}
+
+.boot-direct-line.success {
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.boot-direct-line.system {
+  color: #d8deea;
+}
+
+.boot-direct-line.echo {
+  margin-top: 8px;
+  color: rgba(235, 235, 235, .94);
+}
+
+.boot-direct-line.error {
+  color: #ffffff;
+}
+
+.boot-direct-command {
+  position: static;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 0 0 18px 18px;
+  color: #ffffff;
+  font-family: Consolas, "Lucida Console", "Courier New", monospace;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.25;
+  transition: opacity .16s ease;
+}
+
+.boot-direct-command.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-direct-prompt {
+  color: #d8deea;
+  white-space: nowrap;
+}
+
+.boot-direct-value {
+  min-width: 1px;
+  color: #ffffff;
+  white-space: pre;
+  margin-left: 1ch;
+}
+
+#bootDirectInput {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.boot-block-cursor {
+  width: .72em;
+  height: 1.08em;
+  display: inline-block;
+  background: #f4f7fb;
+  box-shadow: none;
+  transform: translateY(2px);
+  animation: bootBlockCursor .9s steps(1, end) infinite;
+}
+
+@media (max-width: 680px) {
+  .boot-direct-shell {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .boot-direct-panel {
+    border-radius: 0;
+  }
+
+  .boot-direct-output {
+    padding: 14px 0 0 12px;
+    font-size: 14px;
+  }
+
+  .boot-direct-command {
+    padding: 0 0 14px 12px;
+    font-size: 14px;
+  }
+}
+
+@keyframes bootBlockCursor {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Hide bottom ready/toast indicators completely. */
+.watermark,
+.toast {
+  display: none !important;
+}
+
+:root {
+  --accent: #f2f2f2;
+  --accent-2: #d7d7d7;
+  --cyan: #eeeeee;
+  --blue: #111a2d;
+  --violet: #b8b8b8;
+  --ok: #f2f2f2;
+}

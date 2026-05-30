@@ -10,6 +10,7 @@ function createWindow(port) {
     height: 680,
     minWidth: 760,
     minHeight: 520,
+    fullscreen: true,
     backgroundColor: "#080909",
     title: "Findsense",
     autoHideMenuBar: true,
