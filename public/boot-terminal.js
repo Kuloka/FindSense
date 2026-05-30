@@ -165,6 +165,7 @@
     form.classList.add("is-hidden");
     await runProgressBar();
     await wait(120);
+    await typeLine("");
     for (const line of finalBanner) {
       await typeLine(line, "final");
     }
